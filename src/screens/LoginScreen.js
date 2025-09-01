@@ -53,13 +53,19 @@ const LoginScreen = () => {
               <Text style={styles.linkText}>Send Verification Link</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => navigation.navigate('ForgetPassword')}
+            >
               <Text style={styles.linkText}>Forgot Password?</Text>
             </TouchableOpacity>
           </View>
 
           <View style={styles.btnContainer}>
-            <ButtonComp title={'Sign IN'} />
+            <ButtonComp
+              title={'Sign IN'}
+              onPress={() => navigation.navigate('Tab')}
+            />
           </View>
 
           <View style={styles.footerContainer}>
