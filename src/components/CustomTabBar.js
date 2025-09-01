@@ -125,6 +125,19 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: theme.colors.white,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: -2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 8,
+        borderTopWidth: 0.5,
+        borderTopColor: theme.colors.divider,
+      },
+    }),
   },
   tabBar: {
     flexDirection: 'row',
@@ -147,7 +160,7 @@ const styles = StyleSheet.create({
   specialTabInner: {
     width: 60,
     height: 60,
-    borderRadius: theme.radius.full,
+    borderRadius: 30,
     backgroundColor: theme.colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
