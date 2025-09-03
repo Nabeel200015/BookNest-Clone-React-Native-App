@@ -18,6 +18,7 @@ const Header = ({
   rightIconTwo = '',
   onPressOne,
   onPressTwo,
+  title,
 }) => {
   const navigation = useNavigation();
   return (
@@ -44,7 +45,11 @@ const Header = ({
 
         {/* Center Section */}
         <View style={styles.centerSection}>
-          <Logo width={120} height={120} />
+          {title ? (
+            <Text style={styles.logoText}>{title}</Text>
+          ) : (
+            <Logo width={120} height={120} />
+          )}
         </View>
         {/* Right Section */}
         <View style={styles.rightSection}>
@@ -61,7 +66,7 @@ const Header = ({
                   <Icon
                     name={rightIconOne}
                     size={24}
-                    color={theme.colors.textPrimary}
+                    color={theme.colors.textSecondary}
                     iconStyle="solid"
                   />
                 </TouchableOpacity>
@@ -77,7 +82,7 @@ const Header = ({
                   <Icon
                     name={rightIconTwo}
                     size={24}
-                    color={theme.colors.textPrimary}
+                    color={theme.colors.textSecondary}
                     iconStyle="solid"
                   />
                 </TouchableOpacity>
@@ -119,7 +124,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'flex-start',
     justifyContent: 'center',
-    minWidth: 40,
+    minWidth: 20,
     // backgroundColor: 'red',
   },
   backButton: {
@@ -138,7 +143,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-end',
-    minWidth: 40,
+    minWidth: 20,
     // backgroundColor: 'blue',
   },
   iconsContainer: {
@@ -150,6 +155,12 @@ const styles = StyleSheet.create({
     padding: theme.spacing.xs,
     marginLeft: theme.spacing.sm,
     position: 'relative',
+  },
+  logoText: {
+    ...theme.Typography.title,
+    textTransform: 'capitalize',
+    fontFamily: 'OpenSans-Bold',
+    color: theme.colors.primary,
   },
 });
 

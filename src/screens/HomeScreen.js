@@ -43,8 +43,8 @@ const HomeScreen = () => {
     <SafeAreaView style={styles.container}>
       <Header
         showRightButtons={true}
-        rightIconOne="circle-user"
         rightIconTwo="bell"
+        onPressTwo={() => navigation.navigate('Notification')}
       />
 
       <View style={styles.flatList}>

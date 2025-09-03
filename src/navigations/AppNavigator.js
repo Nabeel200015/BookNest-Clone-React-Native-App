@@ -7,6 +7,8 @@ import OtpScreen from '../screens/OtpScreen';
 import TabNavigator from './TabNavigator';
 import AddBookScreen from '../screens/AddBookScreen';
 import BookDetailScreen from '../screens/BookDetailScreen';
+import NotificationScreen from '../screens/NotificationScreen';
+import LikedBooks from '../screens/LikedBooksScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -31,6 +33,8 @@ const AppNavigator = () => {
         }}
       />
       <Stack.Screen name="BookDetail" component={BookDetailScreen} />
+      <Stack.Screen name="Notification" component={NotificationScreen} />
+      <Stack.Screen name="LikedBooks" component={LikedBooks} />
     </Stack.Navigator>
   );
 };

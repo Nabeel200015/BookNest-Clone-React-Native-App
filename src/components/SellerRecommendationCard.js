@@ -40,14 +40,14 @@ const SellerRecommendationCard = ({ book, onPress, style }) => {
       {/* Content */}
       <View style={styles.content}>
         {/* Book Title */}
-        <Text style={styles.bookTitle} numberOfLines={2}>
+        <Text style={styles.bookTitle} numberOfLines={1}>
           {title}
         </Text>
 
         {/* Seller Info and Date */}
         <View style={styles.metaContainer}>
           <View style={styles.sellerInfo}>
-            <Text style={styles.sellerLabel}>Sold by </Text>
+            <Text style={styles.sellerLabel}>Seller: </Text>
             <Text style={styles.sellerName} numberOfLines={1}>
               {sellerName}
             </Text>
@@ -66,7 +66,8 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.lg,
     overflow: 'hidden',
     // width: 160,
-    ...theme.shadow.sm,
+    ...theme.shadow.md,
+    marginBottom: theme.spacing.md,
   },
   imageContainer: {
     position: 'relative',
@@ -93,16 +94,19 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: theme.spacing.sm,
+    // backgroundColor: 'red',
   },
   bookTitle: {
     ...theme.Typography.body,
     fontFamily: 'OpenSans-SemiBold',
     color: theme.colors.textPrimary,
     marginBottom: theme.spacing.xs,
+    // backgroundColor: 'blue',
     height: 40, // Fixed height for 2 lines
   },
   metaContainer: {
     marginTop: theme.spacing.xs,
+    // backgroundColor: 'green',
   },
   sellerInfo: {
     flexDirection: 'row',

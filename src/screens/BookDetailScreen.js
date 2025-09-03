@@ -31,7 +31,7 @@ const recommendations = [
 
     price: 19.99,
     title: 'To Kill a Mockingbird',
-    sellerName: 'Jane Smith',
+    sellerName: 'John Doe',
     dateUploaded: '2025-06-12',
   },
   {
@@ -39,7 +39,7 @@ const recommendations = [
     image: 'https://covers.openlibrary.org/b/id/10958305-L.jpg',
     price: 29.99,
     title: '1984',
-    sellerName: 'BookLover42',
+    sellerName: 'John Doe',
     dateUploaded: '2025-06-11',
   },
   // More books...
@@ -197,20 +197,22 @@ const BookDetailScreen = () => {
           <Text style={styles.headingText}>More From This Seller</Text>
 
           {/*Recommedation Books FlatList */}
-          <FlatList
-            data={recommendations}
-            keyExtractor={item => item.id}
-            renderItem={({ item }) => (
-              <SellerRecommendationCard
-                book={item}
-                onPress={() =>
-                  navigation.navigate('BookDetail', { book: item })
-                }
-              />
-            )}
-            // contentContainerStyle={{ padding: theme.spacing.md }}
-            scrollEnabled={false}
-          />
+          <View style={styles.flatList}>
+            <FlatList
+              data={recommendations}
+              keyExtractor={item => item.id}
+              renderItem={({ item }) => (
+                <SellerRecommendationCard
+                  book={item}
+                  onPress={() =>
+                    navigation.navigate('BookDetail', { book: item })
+                  }
+                />
+              )}
+              // contentContainerStyle={{ padding: theme.spacing.md }}
+              scrollEnabled={false}
+            />
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -311,27 +313,24 @@ const styles = StyleSheet.create({
   },
   buttonsContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-evenly',
+    justifyContent: 'center',
     marginTop: theme.spacing.md,
+    gap: theme.spacing.sm,
   },
   button: {
+    width: 90,
+    paddingVertical: theme.spacing.sm,
     alignItems: 'center',
     justifyContent: 'center',
-    // width: 90,
     gap: theme.spacing.sm,
-    padding: theme.spacing.sm,
-
     borderRadius: theme.radius.lg,
     justifyContent: 'center',
-    // backgroundColor: 'red',
   },
   buttonText: {
-    width: 70,
     textAlign: 'center',
     ...theme.Typography.body,
     fontFamily: 'OpenSans-Bold',
     color: theme.colors.textInverse,
-    // backgroundColor: 'blue',
   },
   chatButton: {
     borderWidth: 2.5,
@@ -350,6 +349,10 @@ const styles = StyleSheet.create({
     fontFamily: 'OpenSans-Bold',
     lineHeight: 36,
     textAlign: 'center',
+  },
+  flatList: {
+    flex: 1,
+    marginTop: theme.spacing.sm,
   },
 });
 

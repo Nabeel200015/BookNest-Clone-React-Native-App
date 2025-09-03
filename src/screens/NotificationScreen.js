@@ -3,28 +3,21 @@ import React from 'react';
 import theme from '../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from '../components/Header';
-import { useNavigation } from '@react-navigation/native';
-import ChatSearch from '../components/ChatSearch';
 
-const ChatsScreen = () => {
-  const navigation = useNavigation();
+const NotificationScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView style={styles.keyboardAvoid}>
-        <Header
-          title={'Chats'}
-          rightIconTwo="bell"
-          showRightButtons
-          onPressTwo={() => navigation.navigate('Notification')}
-        />
-
-        <ChatSearch />
+        <Header title={'Notification'} showBackButton />
+        <View
+          style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+        >
+          <Text>No Notifications yet...</Text>
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
-
-export default ChatsScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -35,3 +28,5 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
+
+export default NotificationScreen;
