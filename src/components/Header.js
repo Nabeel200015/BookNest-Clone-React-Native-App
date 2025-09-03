@@ -7,7 +7,7 @@ import {
 } from 'react-native';
 import React from 'react';
 import theme from '../constants/theme';
-import Icon from '@react-native-vector-icons/material-icons';
+import Icon from '@react-native-vector-icons/fontawesome6';
 import Logo from '../assets/images/logo.svg';
 import { useNavigation } from '@react-navigation/native';
 
@@ -33,9 +33,10 @@ const Header = ({
               style={styles.backButton}
             >
               <Icon
-                name="arrow-back-ios"
+                name="chevron-left"
                 size={24}
                 color={theme.colors.textPrimary}
+                iconStyle="solid"
               />
             </TouchableOpacity>
           )}
@@ -59,8 +60,9 @@ const Header = ({
                 >
                   <Icon
                     name={rightIconOne}
-                    size={28}
+                    size={24}
                     color={theme.colors.textPrimary}
+                    iconStyle="solid"
                   />
                 </TouchableOpacity>
               )}
@@ -74,8 +76,9 @@ const Header = ({
                 >
                   <Icon
                     name={rightIconTwo}
-                    size={28}
+                    size={24}
                     color={theme.colors.textPrimary}
+                    iconStyle="solid"
                   />
                 </TouchableOpacity>
               )}

@@ -3,11 +3,12 @@ import React from 'react';
 import CustomTabBar from '../components/CustomTabBar';
 import HomeScreen from '../screens/HomeScreen';
 import SearchScreen from '../screens/SearchScreen';
-import LibraryScreen from '../screens/LibraryScreen';
+import Chats from '../screens/ChatsScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import { useNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AddBookScreen from '../screens/AddBookScreen';
+import ChatsScreen from '../screens/ChatsScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -51,9 +52,9 @@ const TabNavigator = () => {
       />
 
       <Tab.Screen
-        name="Library"
-        component={LibraryScreen}
-        options={{ tabBarLabel: 'Library' }}
+        name="Chats"
+        component={ChatsScreen}
+        options={{ tabBarLabel: 'Chats' }}
       />
 
       <Tab.Screen

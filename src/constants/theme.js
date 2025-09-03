@@ -5,7 +5,7 @@
 const theme = {
   colors: {
     // Primary colors
-    primary: '#1e88e5', // Vibrant blue (buttons, active states)
+    primary: 'rgb(42, 72, 222)', // Vibrant blue (buttons, active states)
     primaryDark: '#2A48DE', // Darker shade for pressed states
     primaryLight: '#a3c8f3ff', // Light shade for backgrounds
 

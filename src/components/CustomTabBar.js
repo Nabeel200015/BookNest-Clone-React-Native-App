@@ -33,9 +33,9 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
       isSpecial: true,
     },
     {
-      name: 'Library',
-      icon: 'book-bookmark',
-      label: 'Library',
+      name: 'Chats',
+      icon: 'comments',
+      label: 'Chats',
     },
     {
       name: 'Profile',

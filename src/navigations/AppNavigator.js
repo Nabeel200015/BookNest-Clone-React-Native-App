@@ -6,6 +6,7 @@ import ForgetPasswordScreen from '../screens/ForgetPasswordScreen';
 import OtpScreen from '../screens/OtpScreen';
 import TabNavigator from './TabNavigator';
 import AddBookScreen from '../screens/AddBookScreen';
+import BookDetailScreen from '../screens/BookDetailScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -29,6 +30,7 @@ const AppNavigator = () => {
           presentation: 'modal', // Gives a modal-like appearance
         }}
       />
+      <Stack.Screen name="BookDetail" component={BookDetailScreen} />
     </Stack.Navigator>
   );
 };
