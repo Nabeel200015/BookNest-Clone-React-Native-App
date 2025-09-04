@@ -68,9 +68,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: theme.colors.inputBackground,
+    borderRadius: theme.radius.md,
     paddingVertical: theme.spacing.sm,
     paddingHorizontal: theme.spacing.md,
-    borderRadius: theme.radius.md,
   },
   inline: {
     flex: 1,
