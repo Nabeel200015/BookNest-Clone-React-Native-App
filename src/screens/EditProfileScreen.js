@@ -13,16 +13,22 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Back from '../assets/icons/backarrow.svg';
 import Icon from '@react-native-vector-icons/fontawesome6';
 import InputComp from '../components/InputComp';
+import { useNavigation } from '@react-navigation/native';
 
 const EditProfileScreen = () => {
+  const navigation = useNavigation();
   const [changePassword, setChangePassword] = useState(false);
   const toggleChangePass = () => setChangePassword(!changePassword);
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.container}>
         <KeyboardAvoidingView style={styles.keyboardAvoid}>
-          <TouchableOpacity style={styles.back}>
-            <Back width={35} height={35} />
+          <TouchableOpacity
+            style={styles.back}
+            activeOpacity={0.5}
+            onPress={() => navigation.goBack()}
+          >
+            <Back width={30} height={30} />
           </TouchableOpacity>
 
           <View style={styles.headerTextContainer}>
