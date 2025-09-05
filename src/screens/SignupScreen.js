@@ -81,9 +81,7 @@ const SignupScreen = () => {
               leftIcon={'lock'}
               placeholder={'Enter password'}
               keyboardType={'default'}
-              secureTextEntry={visible}
-              rightIcon={!visible ? 'eye-slash' : 'eye'}
-              onPressRightIcon={() => setVisible(!visible)}
+              rightIcon
             />
           </View>
 

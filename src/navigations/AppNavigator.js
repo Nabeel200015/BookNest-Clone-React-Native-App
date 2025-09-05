@@ -9,6 +9,7 @@ import AddBookScreen from '../screens/AddBookScreen';
 import BookDetailScreen from '../screens/BookDetailScreen';
 import NotificationScreen from '../screens/NotificationScreen';
 import LikedBooks from '../screens/LikedBooksScreen';
+import EditProfileScreen from '../screens/EditProfileScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -35,6 +36,7 @@ const AppNavigator = () => {
       <Stack.Screen name="BookDetail" component={BookDetailScreen} />
       <Stack.Screen name="Notification" component={NotificationScreen} />
       <Stack.Screen name="LikedBooks" component={LikedBooks} />
+      <Stack.Screen name="EditProfile" component={EditProfileScreen} />
     </Stack.Navigator>
   );
 };

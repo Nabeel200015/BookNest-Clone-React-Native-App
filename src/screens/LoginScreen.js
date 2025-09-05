@@ -42,9 +42,7 @@ const LoginScreen = () => {
               leftIcon={'lock'}
               placeholder={'Enter your password'}
               keyboardType={'default'}
-              secureTextEntry={visible}
-              rightIcon={!visible ? 'eye-slash' : 'eye'}
-              onPressRightIcon={() => setVisible(!visible)}
+              rightIcon
             />
           </View>
 

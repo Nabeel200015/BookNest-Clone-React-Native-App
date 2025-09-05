@@ -5,7 +5,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import Icon from '@react-native-vector-icons/fontawesome6';
 import theme from '../constants/theme';
 
@@ -22,6 +22,7 @@ const InputComp = ({
   onPressRightIcon,
   ...props
 }) => {
+  const [visible, setVisible] = useState(false);
   return (
     <View style={[styles.input, inputStyle]}>
       {leftIcon && (
@@ -40,7 +41,7 @@ const InputComp = ({
         keyboardType={keyboardType}
         value={value}
         onChangeText={onChangeText}
-        secureTextEntry={secureTextEntry}
+        secureTextEntry={visible}
         {...props}
       />
 
@@ -48,10 +49,10 @@ const InputComp = ({
         <TouchableOpacity
           style={styles.rightIcon}
           activeOpacity={0.8}
-          onPress={onPressRightIcon}
+          onPress={() => setVisible(!visible)}
         >
           <Icon
-            name={rightIcon}
+            name={!visible ? 'eye-slash' : 'eye'}
             size={18}
             color={theme.colors.textTertiary}
             iconStyle="solid"
