@@ -22,7 +22,7 @@ const InputComp = ({
   onPressRightIcon,
   ...props
 }) => {
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(true);
   return (
     <View style={[styles.input, inputStyle]}>
       {leftIcon && (

@@ -13,10 +13,23 @@ import Logo from '../assets/images/logo.svg';
 import InputComp from '../components/InputComp';
 import ButtonComp from '../components/ButtonComp';
 import { useNavigation } from '@react-navigation/native';
+import booknest from '../services/api';
+import { useDispatch, useSelector } from 'react-redux';
+import { loginUser } from '../redux/authSlice';
 
 const LoginScreen = () => {
   const navigation = useNavigation();
-  const [visible, setVisible] = useState(false);
+  const [data, setData] = useState({
+    email: '',
+    password: '',
+  });
+
+  const dispatch = useDispatch();
+  const { loading, error, user } = useSelector(state => state.auth);
+
+  const handleLogin = data => {
+    dispatch(loginUser(data));
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -37,12 +50,16 @@ const LoginScreen = () => {
               leftIcon={'envelope'}
               placeholder={'Enter your email'}
               keyboardType={'email-address'}
+              value={data.email}
+              onChangeText={text => setData({ ...data, email: text })}
             />
             <InputComp
               leftIcon={'lock'}
               placeholder={'Enter your password'}
               keyboardType={'default'}
               rightIcon
+              value={data.password}
+              onChangeText={text => setData({ ...data, password: text })}
             />
           </View>
 
@@ -61,8 +78,8 @@ const LoginScreen = () => {
 
           <View style={styles.btnContainer}>
             <ButtonComp
-              title={'Sign IN'}
-              onPress={() => navigation.navigate('Tab')}
+              title={!loading ? 'Sign IN' : 'Loading...'}
+              onPress={() => handleLogin(data)}
             />
           </View>
 

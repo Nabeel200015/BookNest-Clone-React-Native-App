@@ -13,9 +13,17 @@ import Header from '../components/Header';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from '@react-native-vector-icons/fontawesome6';
 import { useNavigation } from '@react-navigation/native';
+import { useDispatch } from 'react-redux';
+import { logoutUser } from '../redux/authSlice';
+import { getToken } from '../utils/storage';
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
+
+  const handleLogout = () => {
+    dispatch(logoutUser());
+  };
   const options = [
     {
       id: 1,
@@ -39,7 +47,7 @@ const ProfileScreen = () => {
       id: 4,
       text: 'Logout',
       Icon: 'arrow-right-from-bracket',
-      onPress: () => navigation.navigate('Login'),
+      onPress: handleLogout,
     },
   ];
   return (
