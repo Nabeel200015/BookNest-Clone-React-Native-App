@@ -8,7 +8,7 @@ const DropDown = ({ label, onOptionChange, options = [] }) => {
   const [visible, setVisible] = useState(false);
   const [selectedOption, setSelectedOption] = useState('');
 
-  const toggleMenu = async () => {
+  const toggleMenu = () => {
     if (visible) {
       return setVisible(false);
     } else {

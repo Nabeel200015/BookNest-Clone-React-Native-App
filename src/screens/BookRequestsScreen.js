@@ -6,7 +6,7 @@ import ToggleButtons from '../components/ToggleButtons';
 import Back from '../assets/icons/backarrow.svg';
 import { useNavigation } from '@react-navigation/native';
 
-const MyBooksScreen = () => {
+const BookRequestsScreen = () => {
   const navigation = useNavigation();
   return (
     <SafeAreaView style={styles.container}>
@@ -19,27 +19,19 @@ const MyBooksScreen = () => {
       </TouchableOpacity>
 
       <View style={styles.headerTextContainer}>
-        <Text style={styles.title}>My Book Listings</Text>
+        <Text style={styles.title}>Book Requests</Text>
       </View>
 
       <ToggleButtons
-        toggleOptions={[
-          'All',
-          'Approved',
-          'Pending',
-          'Active',
-          'Rejected',
-          'Sold',
-          'Paused',
-        ]}
-        defualtActive={'All'}
+        toggleOptions={['Recieved Requests', 'Sent Requests']}
+        defualtActive={'Recieved Requests'}
         style={styles.toggleBtns}
       />
     </SafeAreaView>
   );
 };
 
-export default MyBooksScreen;
+export default BookRequestsScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -68,6 +60,7 @@ const styles = StyleSheet.create({
   },
   toggleBtns: {
     marginVertical: theme.spacing.sm,
-    marginHorizontal: theme.spacing.sm,
+    width: '89%',
+    alignSelf: 'center',
   },
 });
