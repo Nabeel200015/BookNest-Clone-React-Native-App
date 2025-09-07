@@ -1,4 +1,5 @@
 import {
+  Alert,
   KeyboardAvoidingView,
   ScrollView,
   StyleSheet,
@@ -12,10 +13,57 @@ import theme from '../constants/theme';
 import InputComp from '../components/InputComp';
 import { useNavigation } from '@react-navigation/native';
 import ButtonComp from '../components/ButtonComp';
+import booknest from '../services/api';
 
 const SignupScreen = () => {
   const navigation = useNavigation();
-  const [visible, setVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState({
+    email: '',
+    password: '',
+    firstname: '',
+    lastname: '',
+    phoneno: '',
+    address: {
+      city: '',
+      country: '',
+    },
+  });
+
+  const handleChange = (key, value, nestedKey = null) => {
+    if (nestedKey) {
+      setForm(prev => ({
+        ...prev,
+        [key]: {
+          ...prev[key],
+          [nestedKey]: value,
+        },
+      }));
+    } else {
+      setForm(prev => ({ ...prev, [key]: value }));
+    }
+  };
+
+  const handleRegister = async value => {
+    try {
+      setLoading(true);
+      const response = await booknest.post('/users/register', value);
+      console.log('Register Request:', response.data);
+
+      navigation.replace('Login');
+      return Alert.alert(
+        'Registration',
+        response.data?.message || 'Registration successful!',
+      );
+    } catch (error) {
+      console.log('API Error:', error.response?.data?.message);
+
+      return Alert.alert('Registeration Failed', error.response?.data?.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.container}>
@@ -40,11 +88,16 @@ const SignupScreen = () => {
                 leftIcon={'user'}
                 placeholder={'First Name'}
                 keyboardType={'default'}
+                value={form.firstname}
+                onChangeText={text => handleChange('firstname', text)}
               />
+
               <InputComp
                 leftIcon={'user'}
                 placeholder={'Last Name'}
                 keyboardType={'default'}
+                value={form.lastname}
+                onChangeText={text => handleChange('lastname', text)}
               />
             </View>
 
@@ -52,29 +105,32 @@ const SignupScreen = () => {
               leftIcon={'envelope'}
               placeholder={'Enter your email'}
               keyboardType={'email-address'}
+              value={form.email}
+              onChangeText={text => handleChange('email', text)}
             />
 
             <InputComp
               leftIcon={'phone'}
               placeholder={'Enter your phone Number'}
               keyboardType={'phone-pad'}
+              value={form.phoneno}
+              onChangeText={text => handleChange('phoneno', text)}
             />
 
-            <InputComp
-              leftIcon={'envelope'}
-              placeholder={'Enter your email'}
-              keyboardType={'email-address'}
-            />
             <View style={styles.horizontalFormContainer}>
               <InputComp
                 leftIcon={'city'}
                 placeholder={'Enter your City'}
                 keyboardType={'default'}
+                value={form.address.city}
+                onChangeText={text => handleChange('address', text, 'city')}
               />
               <InputComp
                 leftIcon={'globe'}
                 placeholder={'Enter your Country'}
                 keyboardType={'default'}
+                value={form.address.country}
+                onChangeText={text => handleChange('address', text, 'country')}
               />
             </View>
             <InputComp
@@ -82,11 +138,16 @@ const SignupScreen = () => {
               placeholder={'Enter password'}
               keyboardType={'default'}
               rightIcon
+              value={form.password}
+              onChangeText={text => handleChange('password', text)}
             />
           </View>
 
           <View style={styles.btnContainer}>
-            <ButtonComp title={'Sign up'} />
+            <ButtonComp
+              title={!loading ? 'Sign up' : 'Loading...'}
+              onPress={() => handleRegister(form)}
+            />
           </View>
 
           <View style={styles.footerContainer}>
@@ -141,7 +202,7 @@ const styles = StyleSheet.create({
   },
   btnContainer: {
     marginHorizontal: 20,
-    marginTop: theme.spacing.md,
+    marginTop: theme.spacing.xxl,
   },
   footerContainer: {
     flexDirection: 'row',

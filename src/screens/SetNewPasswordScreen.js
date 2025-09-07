@@ -11,32 +11,45 @@ import React, { useState } from 'react';
 import theme from '../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from '../assets/icons/backarrow.svg';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import InputComp from '../components/InputComp';
 import ButtonComp from '../components/ButtonComp';
 import booknest from '../services/api';
 
-const ForgetPasswordScreen = () => {
+const SetNewPasswordScreen = () => {
   const navigation = useNavigation();
-  const [email, setEmail] = useState('');
+  const route = useRoute().params;
   const [loading, setLoading] = useState(false);
+  const [passwords, setPasswords] = useState({
+    password: '',
+    confirmPassword: '',
+  });
 
-  const handleSendOtp = async email => {
+  const handleChangePassword = async () => {
+    const email = route?.email;
+    const password = passwords.confirmPassword;
+    if (passwords.password !== passwords.confirmPassword) {
+      return Alert.alert('Input Error', 'Passwords are not matched!');
+    }
     try {
       setLoading(true);
-      const response = await booknest.post('/users/sendotp', { email });
-      console.log('OTP Status', response.data?.message);
 
-      navigation.navigate('Otp', { email: email });
-      return Alert.alert('OTP', response.data?.message);
+      const response = await booknest.post('/users/resetpassword', {
+        email: email,
+        newPassword: password,
+      });
+
+      console.log('Password Change Status', response.data?.message);
+
+      navigation.replace('Login');
+      return Alert.alert('Password Change', response.data?.message);
     } catch (error) {
       console.log('API Error', error.response?.data?.message);
-      return Alert.alert('OTP Status', error.response?.data?.message);
+      return Alert.alert('Password Change', error.response?.data?.message);
     } finally {
       setLoading(false);
     }
   };
-
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.container}>
@@ -50,26 +63,36 @@ const ForgetPasswordScreen = () => {
           </TouchableOpacity>
 
           <View style={styles.headerTextContainer}>
-            <Text style={styles.headerText}>Forgot Password</Text>
-            <Text style={styles.subHeadText}>
-              Enter your Email to reset Password.
-            </Text>
+            <Text style={styles.headerText}>Set New Password</Text>
+            <Text style={styles.subHeadText}>Create a strong password.</Text>
           </View>
 
           <View style={styles.fieldContainer}>
             <InputComp
-              leftIcon={'envelope'}
-              placeholder={'Enter your email'}
-              keyboardType={'email-address'}
-              value={email}
-              onChangeText={text => setEmail(text)}
+              leftIcon={'lock'}
+              placeholder={'Enter password'}
+              keyboardType={'defualt'}
+              rightIcon={true}
+              value={passwords.password}
+              onChangeText={text =>
+                setPasswords({ ...passwords, password: text })
+              }
+            />
+            <InputComp
+              leftIcon={'lock'}
+              placeholder={'Confirm password'}
+              keyboardType={'defualt'}
+              rightIcon={true}
+              value={passwords.confirmPassword}
+              onChangeText={text =>
+                setPasswords({ ...passwords, confirmPassword: text })
+              }
             />
 
             <ButtonComp
-              title={!loading ? 'send otp' : 'loading...'}
-              onPress={() => {
-                handleSendOtp(email);
-              }}
+              btnStyle={{ marginTop: theme.spacing.xxl }}
+              title={!loading ? 'Change password' : 'loading...'}
+              onPress={handleChangePassword}
             />
           </View>
         </KeyboardAvoidingView>
@@ -77,6 +100,8 @@ const ForgetPasswordScreen = () => {
     </SafeAreaView>
   );
 };
+
+export default SetNewPasswordScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -109,8 +134,6 @@ const styles = StyleSheet.create({
   fieldContainer: {
     marginHorizontal: 20,
     marginTop: theme.spacing.lg,
-    gap: theme.spacing.xxl,
+    gap: theme.spacing.md,
   },
 });
-
-export default ForgetPasswordScreen;

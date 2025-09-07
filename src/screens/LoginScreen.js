@@ -1,4 +1,5 @@
 import {
+  Alert,
   KeyboardAvoidingView,
   ScrollView,
   StyleSheet,
@@ -29,6 +30,19 @@ const LoginScreen = () => {
 
   const handleLogin = data => {
     dispatch(loginUser(data));
+  };
+
+  const handleVerificationEmail = async email => {
+    try {
+      const response = await booknest.post('/users/sendvarification', {
+        email,
+      });
+      console.log('Email Verification', response.data?.message);
+      return Alert.alert('Email Verification', response.data?.message);
+    } catch (error) {
+      console.log('API Error', error.response?.data?.message);
+      return Alert.alert('Verification Error', error.response?.data?.message);
+    }
   };
 
   return (
@@ -64,7 +78,10 @@ const LoginScreen = () => {
           </View>
 
           <View style={styles.linksContainer}>
-            <TouchableOpacity>
+            <TouchableOpacity
+              activeOpacity={0.6}
+              onPress={() => handleVerificationEmail(data.email)}
+            >
               <Text style={styles.linkText}>Send Verification Link</Text>
             </TouchableOpacity>
 

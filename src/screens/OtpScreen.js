@@ -13,16 +13,18 @@ import React, { useRef, useState } from 'react';
 import theme from '../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from '../assets/icons/backarrow.svg';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import ButtonComp from '../components/ButtonComp';
+import booknest from '../services/api';
 
 const OTP_LENGTH = 6;
 
 const OtpScreen = () => {
+  const route = useRoute().params;
   const navigation = useNavigation();
   const [otp, setOtp] = useState(Array(OTP_LENGTH).fill(''));
-  const [focusedInput, setFocusedInput] = useState(null);
   const inputs = useRef([]);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (text, index) => {
     if (/^\d$/.test(text)) {
@@ -51,15 +53,49 @@ const OtpScreen = () => {
     }
   };
 
-  const handleButtonPress = () => {
+  const handleVerifyOtp = async () => {
     const code = otp.join('');
+    const email = route?.email;
     if (code.length !== OTP_LENGTH) {
       return Alert.alert('Invalid OTP', 'Please enter a valid 6-digit OTP.');
     }
 
-    Alert.alert('OTP Verified', `OTP ${code} is submitted successfully.`);
+    try {
+      setLoading(true);
 
-    navigation.navigate('Login');
+      const response = await booknest.post('/users/verifyotp', {
+        email: email,
+        otp: code,
+      });
+
+      console.log('Data', { email, otp });
+
+      console.log('OTP Status', response.data?.message);
+
+      navigation.navigate('SetNewPass', { email: email });
+      return Alert.alert('OTP', response.data?.message);
+    } catch (error) {
+      console.log('API Error', error.response?.data?.message);
+      return Alert.alert('OTP Status', error.response?.data?.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    const email = route?.email;
+    try {
+      setLoading(true);
+      const response = await booknest.post('/users/sendotp', { email: email });
+      console.log('OTP Resend', response.data?.message);
+
+      return Alert.alert('OTP Resend', response.data?.message);
+    } catch (error) {
+      console.log('API Error', error.response?.data?.message);
+      return Alert.alert('OTP Resend', error.response?.data?.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -109,14 +145,17 @@ const OtpScreen = () => {
 
           <TouchableOpacity
             activeOpacity={0.5}
-            onPress={() => {}}
+            onPress={handleResend}
             style={styles.resendButton}
           >
             <Text style={styles.resendButtonText}>Resend</Text>
           </TouchableOpacity>
 
           <View style={styles.buttonContainer}>
-            <ButtonComp title={'Verify otp'} onPress={handleButtonPress} />
+            <ButtonComp
+              title={!loading ? 'Verify otp' : 'loading...'}
+              onPress={handleVerifyOtp}
+            />
           </View>
         </KeyboardAvoidingView>
       </ScrollView>

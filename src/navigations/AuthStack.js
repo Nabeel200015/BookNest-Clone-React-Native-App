@@ -5,6 +5,7 @@ import LoginScreen from '../screens/LoginScreen';
 import SignupScreen from '../screens/SignupScreen';
 import ForgetPasswordScreen from '../screens/ForgetPasswordScreen';
 import OtpScreen from '../screens/OtpScreen';
+import SetNewPasswordScreen from '../screens/SetNewPasswordScreen';
 
 const Stack = createNativeStackNavigator();
 const AuthStack = () => {
@@ -14,6 +15,7 @@ const AuthStack = () => {
       <Stack.Screen name="Signup" component={SignupScreen} />
       <Stack.Screen name="ForgetPassword" component={ForgetPasswordScreen} />
       <Stack.Screen name="Otp" component={OtpScreen} />
+      <Stack.Screen name="SetNewPass" component={SetNewPasswordScreen} />
     </Stack.Navigator>
   );
 };

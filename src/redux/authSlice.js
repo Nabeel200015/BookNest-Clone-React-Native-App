@@ -17,9 +17,11 @@ export const loginUser = createAsyncThunk(
 
       return { token, user };
     } catch (error) {
-      console.log('API Error:', error.response?.data);
+      console.log('API Error:', error.response?.data?.message);
 
-      return thunkAPI.rejectWithValue(error.response?.data || 'Login Failed');
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || 'Login Failed',
+      );
     }
   },
 );
@@ -45,11 +47,11 @@ export const loadUser = createAsyncThunk(
 
       return { token, user: res.data };
     } catch (error) {
-      console.log('API Error:', error.response?.data);
+      console.log('API Error:', error.response?.data?.message);
       await removeToken();
 
       return thunkAPI.rejectWithValue(
-        error.response?.data || 'Failed to load user',
+        error.response?.data?.message || 'Failed to load user',
       );
     }
   },

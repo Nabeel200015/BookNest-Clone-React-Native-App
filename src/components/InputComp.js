@@ -17,9 +17,7 @@ const InputComp = ({
   keyboardType,
   value,
   onChangeText,
-  secureTextEntry = false,
   rightIcon,
-  onPressRightIcon,
   ...props
 }) => {
   const [visible, setVisible] = useState(true);
@@ -41,7 +39,7 @@ const InputComp = ({
         keyboardType={keyboardType}
         value={value}
         onChangeText={onChangeText}
-        secureTextEntry={visible}
+        secureTextEntry={rightIcon && visible}
         {...props}
       />
 
