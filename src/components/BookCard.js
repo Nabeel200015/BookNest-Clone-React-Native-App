@@ -18,19 +18,15 @@ const BookCard = ({
   showSellerInfo = true,
   showTimePosted = true,
 }) => {
-  const {
-    image,
-    price,
-    timePosted,
-    title,
-    author,
-    location,
-    seller: { name: sellerName, profileImage },
-  } = book;
-
   // Function to format the price
   const formatPrice = amount => {
-    return `$${parseFloat(amount).toFixed(2)}`;
+    // Format as Pakistani Rupees (PKR) with comma separators and Rs prefix
+    const num = Number(amount);
+    if (isNaN(num)) return 'Rs 0.00';
+    return `Rs ${num.toLocaleString('en-PK', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
   };
 
   // Function to format time posted
@@ -68,14 +64,14 @@ const BookCard = ({
       {/* Book Image */}
       <View style={styles.imageContainer}>
         <Image
-          source={{ uri: image }}
+          source={{ uri: `http://192.168.18.40:3000/${book.images[0]}` }}
           style={styles.bookImage}
           resizeMode="cover"
         />
 
         {/* Price Badge */}
         <View style={styles.priceBadge}>
-          <Text style={styles.priceText}>{formatPrice(price)}</Text>
+          <Text style={styles.priceText}>{formatPrice(book.price)}</Text>
         </View>
       </View>
 
@@ -83,10 +79,10 @@ const BookCard = ({
       <View style={styles.content}>
         {/* Book Title and Author */}
         <Text style={styles.bookTitle} numberOfLines={1}>
-          {title}
+          {book.title}
         </Text>
         <Text style={styles.authorText} numberOfLines={1}>
-          by {author}
+          by {book.author}
         </Text>
 
         {/* Time Posted and Location */}
@@ -100,7 +96,7 @@ const BookCard = ({
                 iconStyle="regular"
               />
               <Text style={styles.metaText}>
-                {formatTimePosted(timePosted)}
+                {formatTimePosted(book.createdAt)}
               </Text>
             </View>
           )}
@@ -113,7 +109,7 @@ const BookCard = ({
               iconStyle="solid"
             />
             <Text style={styles.metaText} numberOfLines={1}>
-              {location}
+              {`${book.user.address.city}/${book.user.address.country}`}
             </Text>
           </View>
         </View>
@@ -123,11 +119,15 @@ const BookCard = ({
           <View style={styles.sellerContainer}>
             <View style={styles.profileDetail}>
               <Image
-                source={{ uri: profileImage }}
+                source={{
+                  uri: book.user.profileImage
+                    ? `http://192.168.18.40:3000/${book.user.profileImage}`
+                    : `https://ui-avatars.com/api/?name=${book.user.firstname}+${book.user.lastname}`,
+                }}
                 style={styles.sellerImage}
               />
               <Text style={styles.sellerName} numberOfLines={1}>
-                {sellerName}
+                {`${book.user.firstname} ${book.user.lastname}`}
               </Text>
             </View>
 

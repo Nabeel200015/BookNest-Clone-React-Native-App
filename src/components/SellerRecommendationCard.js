@@ -4,11 +4,17 @@ import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import theme from '../constants/theme';
 
 const SellerRecommendationCard = ({ book, onPress, style }) => {
-  const { image, price, title, sellerName, dateUploaded } = book;
+  console.log('Book received in SellerRecommendationCard:', book);
 
   // Function to format the price
   const formatPrice = amount => {
-    return `$${parseFloat(amount).toFixed(2)}`;
+    // Format as Pakistani Rupees (PKR) with comma separators and Rs prefix
+    const num = Number(amount);
+    if (isNaN(num)) return 'Rs 0.00';
+    return `Rs ${num.toLocaleString('en-PK', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
   };
 
   // Function to format the date
@@ -17,6 +23,18 @@ const SellerRecommendationCard = ({ book, onPress, style }) => {
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
+  const imageUrl =
+    book.images && book.images.length > 0
+      ? `http://192.168.18.40:3000/${book.images[0]}`
+      : 'https://via.placeholder.com/150'; // fallback image
+
+  const sellerName = book.user
+    ? `${book.user.firstname} ${book.user.lastname}`
+    : 'Unknown Seller';
+
+  const formattedDate = book.createdAt
+    ? formatDate(book.createdAt)
+    : 'Unknown Date';
   return (
     <TouchableOpacity
       style={[styles.container, style]}
@@ -26,14 +44,14 @@ const SellerRecommendationCard = ({ book, onPress, style }) => {
       {/* Book Image */}
       <View style={styles.imageContainer}>
         <Image
-          source={{ uri: image }}
+          source={{ uri: imageUrl }}
           style={styles.bookImage}
           resizeMode="cover"
         />
 
         {/* Price Badge */}
         <View style={styles.priceBadge}>
-          <Text style={styles.priceText}>{formatPrice(price)}</Text>
+          <Text style={styles.priceText}>{formatPrice(book.price)}</Text>
         </View>
       </View>
 
@@ -41,7 +59,7 @@ const SellerRecommendationCard = ({ book, onPress, style }) => {
       <View style={styles.content}>
         {/* Book Title */}
         <Text style={styles.bookTitle} numberOfLines={1}>
-          {title}
+          {book.title || 'Untitled'}
         </Text>
 
         {/* Seller Info and Date */}
@@ -53,7 +71,7 @@ const SellerRecommendationCard = ({ book, onPress, style }) => {
             </Text>
           </View>
 
-          <Text style={styles.dateText}>{formatDate(dateUploaded)}</Text>
+          <Text style={styles.dateText}>{formattedDate}</Text>
         </View>
       </View>
     </TouchableOpacity>

@@ -58,7 +58,11 @@ const ImageCarousel = ({
   const renderItem = ({ item, index }) => (
     <View style={styles.slide}>
       <Image
-        source={typeof item === 'string' ? { uri: item } : item}
+        source={
+          typeof item === 'string'
+            ? { uri: `http://192.168.18.40:3000/${item}` }
+            : item
+        }
         style={[styles.image, imageStyle]}
         resizeMode="cover"
       />

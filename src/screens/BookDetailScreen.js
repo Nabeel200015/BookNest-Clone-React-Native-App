@@ -7,46 +7,49 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import theme from '../constants/theme';
 import ImageCarousel from '../components/ImageCarousel';
 import Icon from '@react-native-vector-icons/fontawesome6';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 import SellerRecommendationCard from '../components/SellerRecommendationCard';
-
-const recommendations = [
-  {
-    id: '1',
-    image: 'https://covers.openlibrary.org/b/id/10521270-L.jpg',
-    price: 24.99,
-    title: 'The Great Gatsby',
-    sellerName: 'John Doe',
-    dateUploaded: '2025-06-13',
-  },
-  {
-    id: '2',
-    image: 'https://covers.openlibrary.org/b/id/11153258-L.jpg',
-
-    price: 19.99,
-    title: 'To Kill a Mockingbird',
-    sellerName: 'John Doe',
-    dateUploaded: '2025-06-12',
-  },
-  {
-    id: '3',
-    image: 'https://covers.openlibrary.org/b/id/10958305-L.jpg',
-    price: 29.99,
-    title: '1984',
-    sellerName: 'John Doe',
-    dateUploaded: '2025-06-11',
-  },
-  // More books...
-];
+import booknest from '../services/api';
+import { useDispatch, useSelector } from 'react-redux';
+import { toggleWishlist } from '../redux/bookSlice';
+import MakeOfferModal from '../components/MakeOfferModal';
 
 const BookDetailScreen = () => {
+  const route = useRoute().params;
   const navigation = useNavigation();
+  const { books, wishlist } = useSelector(state => state.book);
+  const dispatch = useDispatch();
+  const book = route?.book;
+
+  const [offerPrice, setOfferPrice] = useState('');
+  const [makeOffer, setMakeOffer] = useState(false);
+  const makeOfferOpen = () => setMakeOffer(true);
+  const makeOfferClose = () => setMakeOffer(false);
+
+  const isBookWishlisted = (wishlist || []).some(p => p._id === book._id);
+  console.log('isBookWishlisted :', isBookWishlisted);
+
+  const sellerBooks = books.filter(
+    b => b.user._id === book.user._id && b._id !== book._id,
+  );
+  // .filter(b => b._id !== book._id);
+  console.log('sellerBooks :', sellerBooks);
+
+  const toggleLikeBook = async item => {
+    dispatch(toggleWishlist(book));
+    try {
+      const response = await booknest.put(`/books//addwishlist/${item._id}`);
+      console.log('Like Book API:', response.data);
+    } catch (error) {
+      console.log('Like Book API Error:', error.response?.data?.message);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -84,12 +87,8 @@ const BookDetailScreen = () => {
 
         {/*Image Carousel*/}
         <ImageCarousel
-          images={[
-            'https://covers.openlibrary.org/b/id/10521270-L.jpg',
-            'https://covers.openlibrary.org/b/id/11153258-L.jpg',
-            'https://covers.openlibrary.org/b/id/10958305-L.jpg',
-          ]}
-          autoPlay={true}
+          images={book.images}
+          autoPlay={false}
           showPagination={true}
         />
 
@@ -98,20 +97,29 @@ const BookDetailScreen = () => {
           {/* Info Section contains Book Name, Price, and like Icon */}
           <View style={styles.infoSection}>
             <View style={styles.infoTextSection}>
-              <Text style={styles.bookName}>Book Name</Text>
-              <Text style={styles.price}>Rs 20000</Text>
+              <Text style={styles.bookName}>{book.title}</Text>
+              <Text style={styles.price}>Rs {book.price}</Text>
             </View>
 
             <TouchableOpacity
-              style={styles.likeButton}
+              style={[
+                styles.likeButton,
+                isBookWishlisted && {
+                  backgroundColor: 'rgba(247, 39, 39, 0.2)',
+                },
+              ]}
               activeOpacity={0.7}
-              onPress={() => {}}
+              onPress={() => toggleLikeBook(book)}
             >
               <Icon
                 name={'heart'}
                 size={24}
-                color={theme.colors.error}
-                iconStyle={'solid'}
+                color={
+                  isBookWishlisted
+                    ? theme.colors.error
+                    : theme.colors.textTertiary
+                }
+                iconStyle={isBookWishlisted ? 'solid' : 'regular'}
               />
             </TouchableOpacity>
           </View>
@@ -120,21 +128,22 @@ const BookDetailScreen = () => {
           <View style={styles.discriptionSection}>
             <Text style={styles.discriptionTitle}>Description</Text>
 
-            <Text style={styles.discriptionText}>
-              this book is for sell and exchange please make sure to contact via
-              chat or message me in whatsapp
-            </Text>
+            <Text style={styles.discriptionText}>{book.description}</Text>
           </View>
 
           {/*Profile Detail with profile Picture, name, and member joined date */}
           <View style={styles.profileCard}>
             <Image
-              source={{ uri: 'https://randomuser.me/api/portraits/men/32.jpg' }}
+              source={{
+                uri: `https://ui-avatars.com/api/?name=${book.user.firstname}+${book.user.lastname}`,
+              }}
               style={styles.profileImage}
             />
 
             <View style={styles.profileText}>
-              <Text style={styles.name}>Name</Text>
+              <Text
+                style={styles.name}
+              >{`${book.user.firstname} ${book.user.lastname}`}</Text>
               <Text style={styles.memberSince}>Member since 6/13/2025</Text>
             </View>
           </View>
@@ -172,7 +181,7 @@ const BookDetailScreen = () => {
               </Text>
             </TouchableOpacity>
 
-            <TouchableOpacity>
+            <TouchableOpacity activeOpacity={0.6} onPress={makeOfferOpen}>
               <LinearGradient
                 style={styles.button}
                 colors={['#9c27b0', '#3949ab']}
@@ -197,22 +206,37 @@ const BookDetailScreen = () => {
           <Text style={styles.headingText}>More From This Seller</Text>
 
           {/*Recommedation Books FlatList */}
-          <View style={styles.flatList}>
-            <FlatList
-              data={recommendations}
-              keyExtractor={item => item.id}
-              renderItem={({ item }) => (
-                <SellerRecommendationCard
-                  book={item}
-                  onPress={() =>
-                    navigation.navigate('BookDetail', { book: item })
-                  }
-                />
-              )}
-              // contentContainerStyle={{ padding: theme.spacing.md }}
-              scrollEnabled={false}
-            />
-          </View>
+          {sellerBooks.length > 0 ? (
+            <View style={styles.flatList}>
+              <FlatList
+                data={sellerBooks}
+                keyExtractor={item => item._id}
+                renderItem={({ item }) => (
+                  <SellerRecommendationCard
+                    book={item}
+                    onPress={() =>
+                      navigation.navigate('BookDetail', { book: item })
+                    }
+                  />
+                )}
+                // contentContainerStyle={{ padding: theme.spacing.md }}
+                scrollEnabled={false}
+              />
+            </View>
+          ) : (
+            <Text style={styles.infoText}>
+              There is no more Books avalaible...
+            </Text>
+          )}
+          <MakeOfferModal
+            visible={makeOffer}
+            bookTitle={book.title}
+            originalPrice={book.price}
+            onClose={makeOfferClose}
+            offerAmount={offerPrice}
+            setOfferAmount={setOfferPrice}
+            keyboardType={'phone-pad'}
+          />
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -267,7 +291,6 @@ const styles = StyleSheet.create({
     color: theme.colors.primary,
   },
   likeButton: {
-    backgroundColor: 'rgba(247, 39, 39, 0.2)',
     padding: theme.spacing.sm,
     borderRadius: theme.radius.round,
   },
@@ -353,6 +376,14 @@ const styles = StyleSheet.create({
   flatList: {
     flex: 1,
     marginTop: theme.spacing.sm,
+  },
+  infoText: {
+    ...theme.Typography.subtitle,
+    alignSelf: 'center',
+    textAlign: 'center',
+    marginVertical: theme.spacing.md,
+    width: '80%',
+    color: theme.colors.info,
   },
 });
 
