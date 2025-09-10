@@ -19,6 +19,8 @@ import booknest from '../services/api';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleWishlist } from '../redux/bookSlice';
 import MakeOfferModal from '../components/MakeOfferModal';
+import Toast from 'react-native-toast-message';
+import ContactSellerModal from '../components/ContactSellerModal';
 
 const BookDetailScreen = () => {
   const route = useRoute().params;
@@ -26,31 +28,75 @@ const BookDetailScreen = () => {
   const { books, wishlist } = useSelector(state => state.book);
   const dispatch = useDispatch();
   const book = route?.book;
+  console.log('Book :', book);
 
   const [offerPrice, setOfferPrice] = useState('');
   const [makeOffer, setMakeOffer] = useState(false);
   const makeOfferOpen = () => setMakeOffer(true);
   const makeOfferClose = () => setMakeOffer(false);
 
+  const [contactSeller, setContactSeller] = useState(false);
+  const contactSellerOpen = () => setContactSeller(true);
+  const contactSellerClose = () => setContactSeller(false);
+
   const isBookWishlisted = (wishlist || []).some(p => p._id === book._id);
-  console.log('isBookWishlisted :', isBookWishlisted);
+  // console.log('isBookWishlisted :', isBookWishlisted);
 
   const sellerBooks = books.filter(
     b => b.user._id === book.user._id && b._id !== book._id,
   );
-  // .filter(b => b._id !== book._id);
-  console.log('sellerBooks :', sellerBooks);
+  // console.log('sellerBooks :', sellerBooks);
 
   const toggleLikeBook = async item => {
-    dispatch(toggleWishlist(book));
     try {
-      const response = await booknest.put(`/books//addwishlist/${item._id}`);
-      console.log('Like Book API:', response.data);
+      dispatch(toggleWishlist(book));
+      Toast.show({
+        position: 'top',
+        type: 'success',
+        text1: isBookWishlisted
+          ? 'Book unliked successfully!'
+          : 'Book liked successfully!',
+        text1Style: { color: theme.colors.success },
+      });
+
+      const response = await booknest.put(`/books/addwishlist/${item._id}`);
+      console.log('Like Book API Res:', response.data);
     } catch (error) {
       console.log('Like Book API Error:', error.response?.data?.message);
+      return Toast.show({
+        position: 'top',
+        type: 'error',
+        text1: 'Failed to like book!',
+        text1Style: { color: theme.colors.error },
+        text2: 'Please try again.',
+      });
     }
   };
 
+  const handleSubmitBid = async amount => {
+    try {
+      const response = await booknest.post(`/books/requestbid/${book._id}`, {
+        amount: amount,
+      });
+      console.log('Bid API Res:', response.data);
+      return Toast.show({
+        position: 'top',
+        type: 'success',
+        text1: 'Bid sent successfully!',
+        text1Style: { color: theme.colors.success },
+        text2: `Bid Amount: ${amount}`,
+      });
+    } catch (error) {
+      console.log('Bid API Error:', error.response?.data?.message);
+      return Toast.show({
+        position: 'top',
+        type: 'error',
+        text1: 'Bid sent failed!',
+        text1Style: { color: theme.colors.error },
+        text2: 'Please try again.',
+      });
+    }
+  };
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
@@ -150,7 +196,7 @@ const BookDetailScreen = () => {
 
           {/*Buttons*/}
           <View style={styles.buttonsContainer}>
-            <TouchableOpacity>
+            <TouchableOpacity activeOpacity={0.6} onPress={contactSellerOpen}>
               <LinearGradient
                 style={styles.button}
                 colors={['#2A48DE', '#1e88e5']}
@@ -235,10 +281,16 @@ const BookDetailScreen = () => {
             onClose={makeOfferClose}
             offerAmount={offerPrice}
             setOfferAmount={setOfferPrice}
-            keyboardType={'phone-pad'}
+            onSubmit={handleSubmitBid}
+          />
+          <ContactSellerModal
+            visible={contactSeller}
+            onClose={contactSellerClose}
+            number={book.user.phoneno}
           />
         </View>
       </ScrollView>
+      <Toast />
     </SafeAreaView>
   );
 };

@@ -24,14 +24,12 @@ const MakeOfferModal = ({
   offerAmount,
   setOfferAmount,
 }) => {
-  const [isFocused, setIsFocused] = useState(true);
-
   const handleSubmit = () => {
     if (!offerAmount || isNaN(offerAmount) || parseFloat(offerAmount) <= 0) {
       // You can add validation feedback here
       return;
     }
-    console.log('Offer Price :', offerAmount);
+    // console.log('Offer Price :', parseFloat(offerAmount));
 
     if (onSubmit) {
       onSubmit(parseFloat(offerAmount));
@@ -53,7 +51,7 @@ const MakeOfferModal = ({
     <Modal
       visible={visible}
       transparent={true}
-      animationType="slide"
+      animationType={'fade'}
       onRequestClose={handleClose}
       statusBarTranslucent={true}
     >
@@ -63,82 +61,71 @@ const MakeOfferModal = ({
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={styles.keyboardAvoid}
           >
-            <TouchableWithoutFeedback>
-              <View style={styles.modalContainer}>
-                <View style={styles.modalCard}>
-                  {/* Header */}
-                  <View style={styles.header}>
-                    <Text style={styles.title}>Make an Offer</Text>
-                    <TouchableOpacity
-                      onPress={handleClose}
-                      style={styles.closeButton}
-                    >
-                      <Icon
-                        name="xmark"
-                        size={24}
-                        color={theme.colors.textTertiary}
-                        iconStyle={'solid'}
-                      />
-                    </TouchableOpacity>
-                  </View>
-
-                  {/* Book Title (optional) */}
-                  {bookTitle && (
-                    <Text style={styles.bookTitle} numberOfLines={1}>
-                      {bookTitle}
-                    </Text>
-                  )}
-
-                  {/* Subtitle */}
-                  <Text style={styles.subtitle}>Your offer amount</Text>
-
-                  {/* Amount Input */}
-                  <View
-                    style={[
-                      styles.inputContainer,
-                      styles.inputContainerFocused,
-                    ]}
+            <View style={styles.modalContainer}>
+              <View style={styles.modalCard}>
+                {/* Header */}
+                <View style={styles.header}>
+                  <Text style={styles.title}>Make an Offer</Text>
+                  <TouchableOpacity
+                    onPress={handleClose}
+                    style={styles.closeButton}
                   >
-                    <Text style={styles.currencyText}>Rs</Text>
-                    <TextInput
-                      style={styles.input}
-                      placeholder="Enter amount"
-                      placeholderTextColor={theme.colors.textTertiary}
-                      value={offerAmount}
-                      onChangeText={setOfferAmount}
-                      keyboardType="phone-pad"
+                    <Icon
+                      name="xmark"
+                      size={24}
+                      color={theme.colors.textTertiary}
+                      iconStyle="solid"
                     />
-                  </View>
-
-                  {/* Original Price */}
-                  <Text style={styles.originalPrice}>
-                    Original price: {formatPrice(originalPrice)}
+                  </TouchableOpacity>
+                </View>
+                {/* Book Title (optional) */}
+                {bookTitle && (
+                  <Text style={styles.bookTitle} numberOfLines={1}>
+                    {bookTitle}
                   </Text>
-
-                  {/* Buttons */}
-                  <View style={styles.buttonContainer}>
-                    <TouchableOpacity
-                      style={[styles.button, styles.cancelButton]}
-                      onPress={handleClose}
-                    >
-                      <Text style={styles.cancelButtonText}>Cancel</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                      style={[
-                        styles.button,
-                        styles.submitButton,
-                        !offerAmount && styles.submitButtonDisabled,
-                      ]}
-                      onPress={handleSubmit}
-                      disabled={!offerAmount}
-                    >
-                      <Text style={styles.submitButtonText}>Send Offer</Text>
-                    </TouchableOpacity>
-                  </View>
+                )}
+                {/* Subtitle */}
+                <Text style={styles.subtitle}>Your offer amount</Text>
+                {/* Amount Input */}
+                <View
+                  style={[styles.inputContainer, styles.inputContainerFocused]}
+                >
+                  <Text style={styles.currencyText}>Rs</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Enter amount"
+                    placeholderTextColor={theme.colors.textTertiary}
+                    value={offerAmount}
+                    onChangeText={setOfferAmount}
+                    keyboardType="phone-pad"
+                  />
+                </View>
+                {/* Original Price */}
+                <Text style={styles.originalPrice}>
+                  Original price: {formatPrice(originalPrice)}
+                </Text>
+                {/* Buttons */}
+                <View style={styles.buttonContainer}>
+                  <TouchableOpacity
+                    style={[styles.button, styles.cancelButton]}
+                    onPress={handleClose}
+                  >
+                    <Text style={styles.cancelButtonText}>Cancel</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[
+                      styles.button,
+                      styles.submitButton,
+                      !offerAmount && styles.submitButtonDisabled,
+                    ]}
+                    onPress={handleSubmit}
+                    disabled={!offerAmount}
+                  >
+                    <Text style={styles.submitButtonText}>Send Offer</Text>
+                  </TouchableOpacity>
                 </View>
               </View>
-            </TouchableWithoutFeedback>
+            </View>
           </KeyboardAvoidingView>
         </View>
       </TouchableWithoutFeedback>
