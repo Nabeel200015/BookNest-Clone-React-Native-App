@@ -77,9 +77,9 @@ const HomeScreen = () => {
                 }
               />
             )}
+            contentContainerStyle={{ padding: theme.spacing.md }}
             onEndReached={loadMore}
             onEndReachedThreshold={0.5}
-            contentContainerStyle={{ padding: theme.spacing.md }}
           />
         </View>
       )}

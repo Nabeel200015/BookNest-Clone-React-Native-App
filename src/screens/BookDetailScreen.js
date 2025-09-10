@@ -27,8 +27,10 @@ const BookDetailScreen = () => {
   const navigation = useNavigation();
   const { books, wishlist } = useSelector(state => state.book);
   const dispatch = useDispatch();
-  const book = route?.book;
-  console.log('Book :', book);
+  const recBook = route?.book;
+  const book = books.find(p => p._id === recBook._id);
+  console.log('recieved :', recBook);
+  console.log('filtered :', book);
 
   const [offerPrice, setOfferPrice] = useState('');
   const [makeOffer, setMakeOffer] = useState(false);

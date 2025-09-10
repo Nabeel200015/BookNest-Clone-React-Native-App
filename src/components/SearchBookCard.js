@@ -1,4 +1,3 @@
-// src/components/BookCard.js
 import React from 'react';
 import {
   View,
@@ -11,13 +10,7 @@ import {
 import Icon from '@react-native-vector-icons/fontawesome6';
 import theme from '../constants/theme';
 
-const BookCard = ({
-  book,
-  onPress,
-  style,
-  showSellerInfo = true,
-  showTimePosted = true,
-}) => {
+const SearchBookCard = ({ book, onPress, style, showTimePosted = true }) => {
   // Function to format the price
   const formatPrice = amount => {
     // Format as Pakistani Rupees (PKR) with comma separators and Rs prefix
@@ -103,47 +96,16 @@ const BookCard = ({
 
           <View style={styles.metaItem}>
             <Icon
-              name="location-dot"
+              name="book"
               size={14}
               color={theme.colors.primary}
               iconStyle="solid"
             />
             <Text style={styles.metaText} numberOfLines={1}>
-              {`${book?.user?.address?.city}/${book?.user?.address?.country}`}
+              {book.genre}
             </Text>
           </View>
         </View>
-
-        {/* Seller Info */}
-        {showSellerInfo && (
-          <View style={styles.sellerContainer}>
-            <View style={styles.profileDetail}>
-              <Image
-                source={{
-                  uri: book.user.profileImage
-                    ? `http://192.168.18.40:3000/${book.user.profileImage}`
-                    : `https://ui-avatars.com/api/?name=${book.user.firstname}+${book.user.lastname}`,
-                }}
-                style={styles.sellerImage}
-              />
-              <Text style={styles.sellerName} numberOfLines={1}>
-                {`${book.user.firstname} ${book.user.lastname}`}
-              </Text>
-            </View>
-
-            <View style={styles.viewDetail}>
-              <Icon
-                name="eye"
-                size={14}
-                color={theme.colors.textTertiary}
-                iconStyle="solid"
-              />
-              <Text style={styles.metaText} numberOfLines={1}>
-                View Details
-              </Text>
-            </View>
-          </View>
-        )}
       </View>
     </TouchableOpacity>
   );
@@ -239,5 +201,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
-
-export default BookCard;
+export default SearchBookCard;

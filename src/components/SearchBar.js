@@ -17,6 +17,7 @@ const SearchBar = ({
   placeholder = 'Search books...',
   onFilterChange,
   style,
+  onSubmit,
 }) => {
   const [isFilterMenuVisible, setIsFilterMenuVisible] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -39,6 +40,12 @@ const SearchBar = ({
     }
   };
 
+  const handleSubmitEditing = () => {
+    if (onSubmit) {
+      onSubmit();
+    }
+  };
+
   return (
     <View style={[styles.container, style]}>
       {/* Search Input */}
@@ -51,6 +58,7 @@ const SearchBar = ({
           iconStyle={'solid'}
         />
         <TextInput
+          onSubmitEditing={handleSubmitEditing}
           style={styles.input}
           placeholder={placeholder}
           placeholderTextColor={theme.colors.textTertiary}
