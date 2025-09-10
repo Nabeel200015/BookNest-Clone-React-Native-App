@@ -10,6 +10,7 @@ import theme from '../constants/theme';
 import Icon from '@react-native-vector-icons/fontawesome6';
 import Logo from '../assets/images/logo.svg';
 import { useNavigation } from '@react-navigation/native';
+import { useSelector } from 'react-redux';
 
 const Header = ({
   showBackButton = false,
@@ -21,6 +22,8 @@ const Header = ({
   title,
 }) => {
   const navigation = useNavigation();
+  const { notifications } = useSelector(state => state.book);
+  const notification = notifications.length > 0;
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -82,7 +85,11 @@ const Header = ({
                   <Icon
                     name={rightIconTwo}
                     size={24}
-                    color={theme.colors.textSecondary}
+                    color={
+                      notification
+                        ? theme.colors.info
+                        : theme.colors.textSecondary
+                    }
                     iconStyle="solid"
                   />
                 </TouchableOpacity>

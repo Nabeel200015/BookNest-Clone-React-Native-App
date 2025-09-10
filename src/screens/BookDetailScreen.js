@@ -29,8 +29,10 @@ const BookDetailScreen = () => {
   const dispatch = useDispatch();
   const recBook = route?.book;
   const book = books.find(p => p._id === recBook._id);
-  console.log('recieved :', recBook);
-  console.log('filtered :', book);
+  const user = useSelector(state => state.auth).user.data;
+  const yourBook = book.user._id === user._id;
+  // console.log('filtered :', book);
+  // console.log('user :', user);
 
   const [offerPrice, setOfferPrice] = useState('');
   const [makeOffer, setMakeOffer] = useState(false);
@@ -48,6 +50,7 @@ const BookDetailScreen = () => {
     b => b.user._id === book.user._id && b._id !== book._id,
   );
   // console.log('sellerBooks :', sellerBooks);
+  // console.log('Your book:', yourBook);
 
   const toggleLikeBook = async item => {
     try {
@@ -197,55 +200,80 @@ const BookDetailScreen = () => {
           </View>
 
           {/*Buttons*/}
-          <View style={styles.buttonsContainer}>
-            <TouchableOpacity activeOpacity={0.6} onPress={contactSellerOpen}>
+          {yourBook ? (
+            <View style={styles.yourBookContainer}>
               <LinearGradient
-                style={styles.button}
-                colors={['#2A48DE', '#1e88e5']}
+                style={styles.yourBookCard}
+                colors={['rgb(232, 245, 234)', 'rgb(227, 242, 251)']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
               >
                 <Icon
-                  name={'comment-dots'}
-                  size={24}
-                  color={theme.colors.white}
+                  name="circle-check"
                   iconStyle={'solid'}
+                  size={24}
+                  color={'rgb(76, 175, 80)'}
                 />
-                <Text style={styles.buttonText}>Contact Seller</Text>
+
+                <Text style={styles.yourBookTitle}>
+                  This is your posted book
+                </Text>
+                <Text style={styles.yourBookSubtitle}>
+                  Manage it from your books section
+                </Text>
               </LinearGradient>
-            </TouchableOpacity>
+            </View>
+          ) : (
+            <View style={styles.buttonsContainer}>
+              <TouchableOpacity activeOpacity={0.6} onPress={contactSellerOpen}>
+                <LinearGradient
+                  style={styles.button}
+                  colors={['#2A48DE', '#1e88e5']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                >
+                  <Icon
+                    name={'comment-dots'}
+                    size={24}
+                    color={theme.colors.white}
+                    iconStyle={'solid'}
+                  />
+                  <Text style={styles.buttonText}>Contact Seller</Text>
+                </LinearGradient>
+              </TouchableOpacity>
 
-            <TouchableOpacity style={[styles.button, styles.chatButton]}>
-              <Icon
-                name={'comments'}
-                size={24}
-                color={theme.colors.primary}
-                iconStyle={'solid'}
-              />
-              <Text
-                style={[styles.buttonText, { color: theme.colors.primary }]}
-              >
-                Chat
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity activeOpacity={0.6} onPress={makeOfferOpen}>
-              <LinearGradient
-                style={styles.button}
-                colors={['#9c27b0', '#3949ab']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-              >
+              <TouchableOpacity style={[styles.button, styles.chatButton]}>
                 <Icon
-                  name={'sack-dollar'}
+                  name={'comments'}
                   size={24}
-                  color={theme.colors.warning}
+                  color={theme.colors.primary}
                   iconStyle={'solid'}
                 />
-                <Text style={styles.buttonText}>Make an Offer</Text>
-              </LinearGradient>
-            </TouchableOpacity>
-          </View>
+                <Text
+                  style={[styles.buttonText, { color: theme.colors.primary }]}
+                >
+                  Chat
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity activeOpacity={0.6} onPress={makeOfferOpen}>
+                <LinearGradient
+                  style={styles.button}
+                  colors={['#9c27b0', '#3949ab']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                >
+                  <Icon
+                    name={'sack-dollar'}
+                    size={24}
+                    color={theme.colors.warning}
+                    iconStyle={'solid'}
+                  />
+                  <Text style={styles.buttonText}>Make an Offer</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
 
         {/*Recommedation Card */}
@@ -438,6 +466,33 @@ const styles = StyleSheet.create({
     marginVertical: theme.spacing.md,
     width: '80%',
     color: theme.colors.info,
+  },
+  yourBookCard: {
+    width: '100%',
+    padding: theme.spacing.lg,
+    borderRadius: theme.radius.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
+    // gap: theme.spacing.sm,
+  },
+  yourBookContainer: {
+    borderWidth: 1,
+    borderRadius: theme.radius.lg,
+    borderColor: 'rgba(187, 235, 189, 1)',
+    marginTop: theme.spacing.sm,
+  },
+  yourBookTitle: {
+    fontSize: 18,
+    fontFamily: 'OpenSans-SemiBold',
+    lineHeight: 28,
+    color: 'rgba(45, 114, 53, 1)',
+    marginTop: theme.spacing.sm,
+  },
+  yourBookSubtitle: {
+    fontSize: 14,
+    fontFamily: 'OpenSans-Regular',
+    lineHeight: 20,
+    color: 'rgba(85, 198, 91, 1)',
   },
 });
 

@@ -16,20 +16,133 @@ import InputComp from '../components/InputComp';
 import DropDown from '../components/DropDown';
 import ImageSelector from '../components/ImageSelector';
 import ButtonComp from '../components/ButtonComp';
+import booknest from '../services/api';
+import Toast from 'react-native-toast-message';
+import { useNavigation } from '@react-navigation/native';
 
 const AddBookScreen = () => {
+  const navigation = useNavigation();
   const [form, setForm] = useState({
-    bookName: '',
-    authorName: '',
-    publishedYear: '',
+    title: '',
     genre: '',
     price: '',
-    images: [],
-    condition: '',
     description: '',
-    webUrl: '',
+    websiteUrl: '',
+    author: '',
+    condition: '',
+    year: '',
   });
   const [images, setImages] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const validateForm = form => {
+    const errors = {};
+
+    if (!form.title || form.title.trim().length < 3) {
+      errors.title = 'Title must be at least 3 characters';
+    }
+
+    if (!form.genre) {
+      errors.genre = 'Genre is required';
+    }
+
+    if (!form.price || isNaN(form.price) || Number(form.price) <= 0) {
+      errors.price = 'Price must be a valid number greater than 0';
+    }
+
+    if (!form.description || form.description.trim().length < 10) {
+      errors.description = 'Description must be at least 10 characters';
+    }
+
+    if (form.websiteUrl) {
+      const urlPattern = /^(https?:\/\/)?([\w\-])+\.{1}[a-zA-Z]{2,}(\/.*)?$/;
+      if (!urlPattern.test(form.websiteUrl)) {
+        errors.websiteUrl = 'Website URL is not valid';
+      }
+    }
+
+    if (!form.author) {
+      errors.author = 'Author is required';
+    }
+
+    if (!form.condition) {
+      errors.condition = 'Condition is required';
+    }
+
+    if (
+      !form.year ||
+      isNaN(form.year) ||
+      form.year < 1900 ||
+      form.year > new Date().getFullYear()
+    ) {
+      errors.year = 'Year must be valid';
+    }
+
+    return errors;
+  };
+
+  const handlePostBook = async ({ bookData, images }) => {
+    const error = validateForm(bookData);
+
+    if (Object.keys(error).length > 0) {
+      const errorMessages = Object.values(error).join('\n');
+      console.log('Errors:', errorMessages);
+
+      Toast.show({
+        type: 'error',
+        text1: 'Validation errors!',
+        text2: errorMessages,
+        text1Style: { color: theme.colors.error },
+        text2Style: { color: theme.colors.error },
+      });
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const formData = new FormData();
+
+      //append fields
+      Object.keys(bookData).forEach(key => {
+        formData.append(key, bookData[key]);
+      });
+
+      //append images
+      images.forEach((img, idx) => {
+        formData.append('images', {
+          uri: img.uri,
+          type: img.type || 'image/jpeg',
+          name: img.fileName || `photo_${idx}.jpg`,
+        });
+      });
+      console.log('FormData :', formData);
+
+      const response = await booknest.post('/books/addbook', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
+      console.log('Post Book Resp:', response.data);
+      Toast.show({
+        type: 'success',
+        text1: response.data?.message,
+        text1Style: { color: theme.colors.success },
+      });
+      navigation.replace('Tab');
+    } catch (error) {
+      console.error(
+        'Error adding book:',
+        error.response?.data?.message || error.message,
+      );
+      Toast.show({
+        type: 'error',
+        text1: error.response.data?.message,
+        text1Style: { color: theme.colors.error },
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <Header showBackButton title={'Post Book Ad'} />
@@ -42,15 +155,15 @@ const AddBookScreen = () => {
                 leftIcon={'book'}
                 placeholder={'Enter Book Name'}
                 keyboardType={'default'}
-                value={form.bookName}
-                onChangeText={text => setForm({ ...form, bookName: text })}
+                value={form.title}
+                onChangeText={text => setForm({ ...form, title: text })}
               />
               <InputComp
                 leftIcon={'user'}
                 placeholder={'Enter Author Name'}
                 keyboardType={'default'}
-                value={form.authorName}
-                onChangeText={text => setForm({ ...form, authorName: text })}
+                value={form.author}
+                onChangeText={text => setForm({ ...form, author: text })}
               />
             </View>
 
@@ -61,10 +174,8 @@ const AddBookScreen = () => {
                   placeholder={'Enter Published Year'}
                   keyboardType={'phone-pad'}
                   maxLength={4}
-                  value={form.publishedYear}
-                  onChangeText={text =>
-                    setForm({ ...form, publishedYear: text })
-                  }
+                  value={form.year}
+                  onChangeText={text => setForm({ ...form, year: text })}
                 />
               </View>
               <DropDown
@@ -93,8 +204,8 @@ const AddBookScreen = () => {
                 leftIcon={'link'}
                 placeholder={'Enter Website URL'}
                 keyboardType={'default'}
-                value={form.webUrl}
-                onChangeText={text => setForm({ ...form, webUrl: text })}
+                value={form.websiteUrl}
+                onChangeText={text => setForm({ ...form, websiteUrl: text })}
               />
             </View>
 
@@ -107,52 +218,52 @@ const AddBookScreen = () => {
                 <View style={styles.columnFields}>
                   <ImageSelector
                     onImageChange={image => {
-                      const updatedImages = [...form.images, image];
-                      setForm({ ...form, images: updatedImages });
+                      const addImage = [...images, image];
+                      setImages(addImage);
                     }}
                     onRemoveImage={image => {
-                      const filteredImages = form.images.filter(
+                      const filteredImages = images.filter(
                         img => img.uri !== image.uri,
                       );
-                      setForm({ ...form, images: filteredImages });
+                      setImages(filteredImages);
                     }}
                   />
                   <ImageSelector
                     onImageChange={image => {
-                      const updatedImages = [...form.images, image];
-                      setForm({ ...form, images: updatedImages });
+                      const addImage = [...images, image];
+                      setImages(addImage);
                     }}
                     onRemoveImage={image => {
-                      const filteredImages = form.images.filter(
+                      const filteredImages = images.filter(
                         img => img.uri !== image.uri,
                       );
-                      setForm({ ...form, images: filteredImages });
+                      setImages(filteredImages);
                     }}
                   />
                 </View>
                 <View style={styles.columnFields}>
                   <ImageSelector
                     onImageChange={image => {
-                      const updatedImages = [...form.images, image];
-                      setForm({ ...form, images: updatedImages });
+                      const addImage = [...images, image];
+                      setImages(addImage);
                     }}
                     onRemoveImage={image => {
-                      const filteredImages = form.images.filter(
+                      const filteredImages = images.filter(
                         img => img.uri !== image.uri,
                       );
-                      setForm({ ...form, images: filteredImages });
+                      setImages(filteredImages);
                     }}
                   />
                   <ImageSelector
                     onImageChange={image => {
-                      const updatedImages = [...form.images, image];
-                      setForm({ ...form, images: updatedImages });
+                      const addImage = [...images, image];
+                      setImages(addImage);
                     }}
                     onRemoveImage={image => {
-                      const filteredImages = form.images.filter(
+                      const filteredImages = images.filter(
                         img => img.uri !== image.uri,
                       );
-                      setForm({ ...form, images: filteredImages });
+                      setImages(filteredImages);
                     }}
                   />
                 </View>
@@ -182,15 +293,14 @@ const AddBookScreen = () => {
             </View>
 
             <ButtonComp
-              title={'Post Book'}
+              title={loading ? 'Loading...' : 'Post Book'}
               btnStyle={{ marginTop: theme.spacing.lg }}
-              onPress={() => {
-                console.log('Form Data:', form);
-              }}
+              onPress={() => handlePostBook({ bookData: form, images: images })}
             />
           </View>
         </KeyboardAvoidingView>
       </ScrollView>
+      <Toast />
     </SafeAreaView>
   );
 };

@@ -1,19 +1,27 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import booknest from '../services/api';
 
+// fetch books + wishlist + notifications
 export const getBooks = createAsyncThunk(
   'book/getBooks',
   async ({ params = {}, append = false }, thunkAPI) => {
     try {
+      //fetch books
       const query = new URLSearchParams(params).toString();
       const response = await booknest.get(`/books/getbooks?${query}`);
       console.log('Books Data:', response.data);
 
+      //fetch wishlist
       const res = await booknest.get('/books/getwishlist');
       const wishlist = res.data.wishlistBooks;
       console.log('Wishlist:', wishlist);
 
-      return { ...response.data, append, wishlist };
+      //fetch notifications
+      const resNotify = await booknest.get('/books/notifications');
+      const notifications = resNotify.data.notifications;
+      console.log('Notification :', notifications);
+
+      return { ...response.data, append, wishlist, notifications };
     } catch (error) {
       console.log('API Error:', error.response?.data || error.message);
       return thunkAPI.rejectWithValue(error.response?.data || error.message);
@@ -26,6 +34,7 @@ const booksSlice = createSlice({
   initialState: {
     books: [],
     wishlist: [],
+    notifications: [],
     currentPage: 1,
     totalPage: 1,
     totalBooks: 0,
@@ -67,6 +76,7 @@ const booksSlice = createSlice({
           state.books = action.payload.books;
         }
         state.wishlist = action.payload.wishlist || [];
+        state.notifications = action.payload.notifications || [];
         state.currentPage = action.payload.currentPage;
         state.totalPage = action.payload.totalPages;
         state.totalBooks = action.payload.totalBooks;
