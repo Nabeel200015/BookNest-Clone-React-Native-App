@@ -29,7 +29,7 @@ const BookDetailScreen = () => {
   const dispatch = useDispatch();
   const recBook = route?.book;
   const book = books.find(p => p._id === recBook._id);
-  const user = useSelector(state => state.auth).user.data;
+  const user = useSelector(state => state.auth).user;
   const yourBook = book.user._id === user._id;
   // console.log('filtered :', book);
   // console.log('user :', user);

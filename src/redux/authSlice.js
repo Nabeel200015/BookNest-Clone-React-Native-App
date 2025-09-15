@@ -43,9 +43,9 @@ export const loadUser = createAsyncThunk(
       console.log('Token:', token);
 
       const res = await booknest.get('/users/getuser'); // token auto-attached by interceptor
-      console.log('API RES:', res.data);
+      console.log('Load User API RES:', res.data.data);
 
-      return { token, user: res.data };
+      return { token, user: res.data.data };
     } catch (error) {
       console.log('API Error:', error.response?.data?.message);
       await removeToken();

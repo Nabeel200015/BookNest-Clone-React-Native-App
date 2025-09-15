@@ -4,7 +4,7 @@ import AppNavigator from './src/navigations/AppNavigator';
 import { PaperProvider } from 'react-native-paper';
 import { Provider } from 'react-redux';
 import store from './src/redux/store';
-import AppInitializer from './src/components/AppInitializer';
+import AppInitializer from './src/constants/AppInitializer';
 
 const App = () => {
   return (

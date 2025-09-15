@@ -13,6 +13,7 @@ import BookCard from '../components/BookCard';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { getBooks } from '../redux/bookSlice';
+import { loadUser } from '../redux/authSlice';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -24,7 +25,7 @@ const HomeScreen = () => {
   useEffect(() => {
     //load first page
     dispatch(getBooks({ params: { page: 1, mostpopular: true } }));
-  }, [dispatch]);
+  }, []);
 
   const loadMore = () => {
     if (!loading && currentPage < totalPages) {

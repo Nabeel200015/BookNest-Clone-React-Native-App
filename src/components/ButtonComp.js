@@ -3,12 +3,13 @@ import React from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 import theme from '../constants/theme';
 
-const ButtonComp = ({ title, btnStyle, btnTextStyle, onPress }) => {
+const ButtonComp = ({ title, btnStyle, btnTextStyle, onPress, disabled }) => {
   return (
     <TouchableOpacity
       activeOpacity={0.8}
       style={[styles.btnStyle, btnStyle]}
       onPress={onPress}
+      disabled={disabled}
     >
       <LinearGradient
         style={styles.gradientStyle}

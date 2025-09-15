@@ -57,15 +57,15 @@ const LoginScreen = () => {
     }
   };
 
-  if (error) {
-    Toast.show({
-      position: 'top',
-      type: 'error',
-      text1: '❌ Failed to Login..',
-      text1Style: { color: theme.colors.error },
-      text2: error,
-    });
-  }
+  // if (error) {
+  //   Toast.show({
+  //     position: 'top',
+  //     type: 'error',
+  //     text1: '❌ Failed to Login..',
+  //     text1Style: { color: theme.colors.error },
+  //     text2: error,
+  //   });
+  // }
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.container}>
@@ -102,6 +102,7 @@ const LoginScreen = () => {
             <TouchableOpacity
               activeOpacity={0.6}
               onPress={() => handleVerificationEmail(data.email)}
+              disabled={loading}
             >
               <Text style={styles.linkText}>Send Verification Link</Text>
             </TouchableOpacity>
@@ -118,6 +119,7 @@ const LoginScreen = () => {
             <ButtonComp
               title={!loading ? 'Sign IN' : 'Loading...'}
               onPress={() => handleLogin(data)}
+              disabled={loading}
             />
           </View>
 

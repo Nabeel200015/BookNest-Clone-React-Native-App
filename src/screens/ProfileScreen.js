@@ -71,8 +71,8 @@ const ProfileScreen = () => {
             <View style={styles.profileTextContainer}>
               <Text
                 style={styles.name}
-              >{`${user.data.firstname} ${user.data.lastname}`}</Text>
-              <Text style={styles.email}>{user.data.email}</Text>
+              >{`${user.firstname} ${user.lastname}`}</Text>
+              <Text style={styles.email}>{user.email}</Text>
             </View>
           </LinearGradient>
         </View>
