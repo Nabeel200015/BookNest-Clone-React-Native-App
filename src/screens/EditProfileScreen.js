@@ -14,11 +14,137 @@ import Back from '../assets/icons/backarrow.svg';
 import Icon from '@react-native-vector-icons/fontawesome6';
 import InputComp from '../components/InputComp';
 import { useNavigation } from '@react-navigation/native';
+import * as imagePicker from 'react-native-image-picker';
+import { useSelector } from 'react-redux';
+import Toast from 'react-native-toast-message';
+import booknest from '../services/api';
 
 const EditProfileScreen = () => {
   const navigation = useNavigation();
   const [changePassword, setChangePassword] = useState(false);
   const toggleChangePass = () => setChangePassword(!changePassword);
+  const [profileImage, setProfileImage] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const { user } = useSelector(state => state.auth);
+  const [form, setForm] = useState({
+    firstname: user.data.firstname || '',
+    lastname: user.data.lastname || '',
+    phoneno: user.data.phoneno || '',
+  });
+  const [passwords, setPasswords] = useState({
+    current: '',
+    new: '',
+    confirm: '',
+  });
+
+  const pickimage = () => {
+    const options = {
+      mediaType: 'photo',
+      quality: 0.8,
+      maxWidth: 1024,
+      maxHeight: 1024,
+    };
+    imagePicker.launchImageLibrary(options, response => {
+      if (response.didCancel) {
+        return console.log('User cancelled image picker');
+      } else if (response.errorMessage) {
+        return console.log('Image Picker error:', response.errorMessage);
+      } else if (response.assets) {
+        console.log('Profile Pic:', response.assets?.[0]);
+        const image = response.assets?.[0];
+
+        setProfileImage(image);
+      }
+    });
+  };
+
+  const handleUpdate = async (form, image) => {
+    try {
+      setLoading(true);
+      const formData = new FormData();
+
+      //Append profileImage (if selected)
+      if (image) {
+        formData.append('profileimage', {
+          uri: image.uri,
+          type: image.type || 'image/jpeg',
+          name: image.filename || 'profile.jpg',
+        });
+      }
+
+      //Append text fields
+      Object.keys(form).forEach(key => {
+        if (form[key]) {
+          formData.append(key, form[key]);
+        }
+      });
+
+      console.log('form :', formData);
+
+      const response = await booknest.put('/users/update-profile', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      console.log('Profile Update:', response.data);
+      return Toast.show({
+        position: 'top',
+        type: 'success',
+        text1: '✅ Profile updated successfully!',
+        text1Style: { color: theme.colors.success },
+      });
+    } catch (error) {
+      console.log('Profile Update Error:', error.response?.data?.message);
+      return Toast.show({
+        position: 'top',
+        type: 'error',
+        text1: '❌ Failed to update profile',
+        text1Style: { color: theme.colors.error },
+        text2: error.response?.data?.message,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleChangePassword = async (currentPass, newPass, confPass) => {
+    if (newPass !== confPass || !newPass || !confPass) {
+      return Toast.show({
+        position: 'top',
+        type: 'error',
+        text1: '❌ Failed to change password',
+        text1Style: { color: theme.colors.error },
+        text2: 'Passwords are not matched!!',
+      });
+    }
+
+    try {
+      setLoading(true);
+      const response = await booknest.post('/users/change-password', {
+        oldPassword: currentPass,
+        newPassword: newPass,
+      });
+      console.log('Password Change:', response.data);
+      return Toast.show({
+        position: 'top',
+        type: 'success',
+        text1: '✅ Password changed successfully!',
+        text1Style: { color: theme.colors.success },
+      });
+    } catch (error) {
+      console.log('Password Change Error:', error.response?.data?.message);
+      return Toast.show({
+        position: 'top',
+        type: 'error',
+        text1: '❌ Failed to change password',
+        text1Style: { color: theme.colors.error },
+        text2: error.response?.data?.message,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.container}>
@@ -40,11 +166,19 @@ const EditProfileScreen = () => {
 
           <View style={styles.profilePictureContianer}>
             <Image
-              source={require('../assets/images/profile.png')}
+              source={
+                profileImage
+                  ? { uri: profileImage.uri }
+                  : require('../assets/images/profile.png')
+              }
               resizeMode="cover"
               style={styles.profileImage}
             />
-            <TouchableOpacity style={styles.uploadIcon}>
+            <TouchableOpacity
+              style={styles.uploadIcon}
+              activeOpacity={0.8}
+              onPress={pickimage}
+            >
               <Icon
                 name="camera"
                 size={22}
@@ -60,11 +194,15 @@ const EditProfileScreen = () => {
                 leftIcon={'user'}
                 placeholder={'Enter First Name'}
                 keyboardType={'default'}
+                value={form.firstname}
+                onChangeText={text => setForm({ ...form, firstname: text })}
               />
               <InputComp
                 leftIcon={'user'}
                 placeholder={'Enter Last Name'}
                 keyboardType={'default'}
+                value={form.lastname}
+                onChangeText={text => setForm({ ...form, lastname: text })}
               />
             </View>
             <View style={styles.emailField}>
@@ -74,17 +212,26 @@ const EditProfileScreen = () => {
                 color={theme.colors.textTertiary}
                 iconStyle="solid"
               />
-              <Text style={styles.emailText}>xyzjdh@gmail.com</Text>
+              <Text style={styles.emailText}>{user.data.email}</Text>
             </View>
             <InputComp
               leftIcon={'phone'}
               placeholder={'Enter your Phone Number'}
-              keyboardType={'default'}
+              keyboardType={'phone-pad'}
+              value={form.phoneno}
+              onChangeText={text => setForm({ ...form, phoneno: text })}
             />
           </View>
 
-          <TouchableOpacity style={styles.saveButton}>
-            <Text style={styles.saveText}>Save Changes</Text>
+          <TouchableOpacity
+            style={styles.saveButton}
+            activeOpacity={0.8}
+            onPress={() => handleUpdate(form, profileImage)}
+            disabled={loading}
+          >
+            <Text style={styles.saveText}>
+              {loading ? 'Loading...' : 'Save Changes'}
+            </Text>
           </TouchableOpacity>
 
           <View style={styles.seperator} />
@@ -126,27 +273,49 @@ const EditProfileScreen = () => {
                 placeholder={'Enter current password'}
                 keyboardType={'default'}
                 rightIcon
+                value={passwords.current}
+                onChangeText={text =>
+                  setPasswords({ ...passwords, current: text })
+                }
               />
               <InputComp
                 leftIcon={'lock'}
                 placeholder={'Enter new password'}
                 keyboardType={'default'}
                 rightIcon
+                value={passwords.new}
+                onChangeText={text => setPasswords({ ...passwords, new: text })}
               />
               <InputComp
                 leftIcon={'lock'}
                 placeholder={'Confirm new password'}
                 keyboardType={'default'}
                 rightIcon
+                value={passwords.confirm}
+                onChangeText={text =>
+                  setPasswords({ ...passwords, confirm: text })
+                }
               />
 
-              <TouchableOpacity style={styles.updateButton}>
+              <TouchableOpacity
+                style={styles.updateButton}
+                activeOpacity={0.8}
+                disabled={loading}
+                onPress={() =>
+                  handleChangePassword(
+                    passwords.current,
+                    passwords.new,
+                    passwords.confirm,
+                  )
+                }
+              >
                 <Text style={styles.updateButtonText}>update password</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.cancelButton}
                 activeOpacity={0.5}
                 onPress={toggleChangePass}
+                disabled={loading}
               >
                 <Text
                   style={[
@@ -164,6 +333,7 @@ const EditProfileScreen = () => {
           )}
         </KeyboardAvoidingView>
       </ScrollView>
+      <Toast />
     </SafeAreaView>
   );
 };

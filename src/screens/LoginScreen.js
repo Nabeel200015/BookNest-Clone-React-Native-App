@@ -17,6 +17,7 @@ import { useNavigation } from '@react-navigation/native';
 import booknest from '../services/api';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginUser } from '../redux/authSlice';
+import Toast from 'react-native-toast-message';
 
 const LoginScreen = () => {
   const navigation = useNavigation();
@@ -38,13 +39,33 @@ const LoginScreen = () => {
         email,
       });
       console.log('Email Verification', response.data?.message);
-      return Alert.alert('Email Verification', response.data?.message);
+      return Toast.show({
+        position: 'top',
+        type: 'success',
+        text1: `✅ ${response.data?.message}!`,
+        text1Style: { color: theme.colors.success },
+      });
     } catch (error) {
       console.log('API Error', error.response?.data?.message);
-      return Alert.alert('Verification Error', error.response?.data?.message);
+      return Toast.show({
+        position: 'top',
+        type: 'error',
+        text1: '❌ Failed to email verification..',
+        text1Style: { color: theme.colors.error },
+        text2: error.response?.data?.message,
+      });
     }
   };
 
+  if (error) {
+    Toast.show({
+      position: 'top',
+      type: 'error',
+      text1: '❌ Failed to Login..',
+      text1Style: { color: theme.colors.error },
+      text2: error,
+    });
+  }
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.container}>
@@ -111,6 +132,7 @@ const LoginScreen = () => {
           </View>
         </KeyboardAvoidingView>
       </ScrollView>
+      <Toast />
     </SafeAreaView>
   );
 };

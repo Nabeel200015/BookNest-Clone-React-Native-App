@@ -72,6 +72,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: theme.spacing.md,
   },
   inline: {
+    flexShrink: 1,
     flex: 1,
     ...theme.Typography.body,
     color: theme.colors.textPrimary,

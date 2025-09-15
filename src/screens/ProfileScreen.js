@@ -13,13 +13,13 @@ import Header from '../components/Header';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from '@react-native-vector-icons/fontawesome6';
 import { useNavigation } from '@react-navigation/native';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { logoutUser } from '../redux/authSlice';
-import { getToken } from '../utils/storage';
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
+  const { user } = useSelector(state => state.auth);
 
   const handleLogout = () => {
     dispatch(logoutUser());
@@ -63,14 +63,16 @@ const ProfileScreen = () => {
             end={{ x: 1, y: 0 }}
           >
             <Image
-              source={{ uri: 'https://randomuser.me/api/portraits/men/32.jpg' }}
+              source={require('../assets/images/profile.png')}
               style={styles.profileImage}
               resizeMode="cover"
             />
 
             <View style={styles.profileTextContainer}>
-              <Text style={styles.name}>Jhon Doe</Text>
-              <Text style={styles.email}>jhondoe321@gmail.com</Text>
+              <Text
+                style={styles.name}
+              >{`${user.data.firstname} ${user.data.lastname}`}</Text>
+              <Text style={styles.email}>{user.data.email}</Text>
             </View>
           </LinearGradient>
         </View>
