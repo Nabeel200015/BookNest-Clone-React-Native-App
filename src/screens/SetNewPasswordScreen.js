@@ -14,16 +14,20 @@ import Icon from '../assets/icons/backarrow.svg';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import InputComp from '../components/InputComp';
 import ButtonComp from '../components/ButtonComp';
-import booknest from '../services/api';
+import { useDispatch, useSelector } from 'react-redux';
+import Toast from 'react-native-toast-message';
+import { resetPassword } from '../redux/authSlice';
 
 const SetNewPasswordScreen = () => {
   const navigation = useNavigation();
   const route = useRoute().params;
-  const [loading, setLoading] = useState(false);
   const [passwords, setPasswords] = useState({
     password: '',
     confirmPassword: '',
   });
+
+  const dispatch = useDispatch();
+  const { loading } = useSelector(state => state.auth);
 
   const handleChangePassword = async () => {
     const email = route?.email;
@@ -31,24 +35,13 @@ const SetNewPasswordScreen = () => {
     if (passwords.password !== passwords.confirmPassword) {
       return Alert.alert('Input Error', 'Passwords are not matched!');
     }
-    try {
-      setLoading(true);
+    if (!password) return Alert.alert('Input Error', 'Password is required!');
 
-      const response = await booknest.post('/users/resetpassword', {
-        email: email,
-        newPassword: password,
+    dispatch(resetPassword({ email: email, password: password }))
+      .unwrap()
+      .then(() => {
+        navigation.replace('Login');
       });
-
-      console.log('Password Change Status', response.data?.message);
-
-      navigation.replace('Login');
-      return Alert.alert('Password Change', response.data?.message);
-    } catch (error) {
-      console.log('API Error', error.response?.data?.message);
-      return Alert.alert('Password Change', error.response?.data?.message);
-    } finally {
-      setLoading(false);
-    }
   };
   return (
     <SafeAreaView style={styles.container}>
@@ -93,10 +86,12 @@ const SetNewPasswordScreen = () => {
               btnStyle={{ marginTop: theme.spacing.xxl }}
               title={!loading ? 'Change password' : 'loading...'}
               onPress={handleChangePassword}
+              disabled={loading}
             />
           </View>
         </KeyboardAvoidingView>
       </ScrollView>
+      <Toast />
     </SafeAreaView>
   );
 };

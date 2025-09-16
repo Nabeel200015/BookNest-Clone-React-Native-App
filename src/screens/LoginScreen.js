@@ -14,9 +14,8 @@ import Logo from '../assets/images/logo.svg';
 import InputComp from '../components/InputComp';
 import ButtonComp from '../components/ButtonComp';
 import { useNavigation } from '@react-navigation/native';
-import booknest from '../services/api';
 import { useDispatch, useSelector } from 'react-redux';
-import { loginUser } from '../redux/authSlice';
+import { loginUser, sendVerificationEmail } from '../redux/authSlice';
 import Toast from 'react-native-toast-message';
 
 const LoginScreen = () => {
@@ -27,45 +26,16 @@ const LoginScreen = () => {
   });
 
   const dispatch = useDispatch();
-  const { loading, error, user } = useSelector(state => state.auth);
+  const { loading } = useSelector(state => state.auth);
 
   const handleLogin = data => {
     dispatch(loginUser(data));
   };
 
-  const handleVerificationEmail = async email => {
-    try {
-      const response = await booknest.post('/users/sendvarification', {
-        email,
-      });
-      console.log('Email Verification', response.data?.message);
-      return Toast.show({
-        position: 'top',
-        type: 'success',
-        text1: `✅ ${response.data?.message}!`,
-        text1Style: { color: theme.colors.success },
-      });
-    } catch (error) {
-      console.log('API Error', error.response?.data?.message);
-      return Toast.show({
-        position: 'top',
-        type: 'error',
-        text1: '❌ Failed to email verification..',
-        text1Style: { color: theme.colors.error },
-        text2: error.response?.data?.message,
-      });
-    }
+  const handleSendVerificationEmail = email => {
+    dispatch(sendVerificationEmail(email));
   };
 
-  // if (error) {
-  //   Toast.show({
-  //     position: 'top',
-  //     type: 'error',
-  //     text1: '❌ Failed to Login..',
-  //     text1Style: { color: theme.colors.error },
-  //     text2: error,
-  //   });
-  // }
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.container}>
@@ -101,7 +71,7 @@ const LoginScreen = () => {
           <View style={styles.linksContainer}>
             <TouchableOpacity
               activeOpacity={0.6}
-              onPress={() => handleVerificationEmail(data.email)}
+              onPress={() => handleSendVerificationEmail(data.email)}
               disabled={loading}
             >
               <Text style={styles.linkText}>Send Verification Link</Text>

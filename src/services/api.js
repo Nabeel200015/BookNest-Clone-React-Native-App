@@ -1,6 +1,8 @@
-import { API_URL } from '@env';
+import { API_URL } from '../utils/routes';
 import axios from 'axios';
 import { getToken } from '../utils/storage';
+
+console.log('📡 Sending request to:', API_URL);
 
 const booknest = axios.create({
   baseURL: API_URL,

@@ -14,27 +14,22 @@ import Icon from '../assets/icons/backarrow.svg';
 import { useNavigation } from '@react-navigation/native';
 import InputComp from '../components/InputComp';
 import ButtonComp from '../components/ButtonComp';
-import booknest from '../services/api';
+import { useDispatch, useSelector } from 'react-redux';
+import { sendOtp } from '../redux/authSlice';
+import Toast from 'react-native-toast-message';
 
 const ForgetPasswordScreen = () => {
   const navigation = useNavigation();
   const [email, setEmail] = useState('');
-  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
+  const { loading } = useSelector(state => state.auth);
 
-  const handleSendOtp = async email => {
-    try {
-      setLoading(true);
-      const response = await booknest.post('/users/sendotp', { email });
-      console.log('OTP Status', response.data?.message);
-
-      navigation.navigate('Otp', { email: email });
-      return Alert.alert('OTP', response.data?.message);
-    } catch (error) {
-      console.log('API Error', error.response?.data?.message);
-      return Alert.alert('OTP Status', error.response?.data?.message);
-    } finally {
-      setLoading(false);
-    }
+  const handleSendOtp = email => {
+    dispatch(sendOtp(email))
+      .unwrap()
+      .then(() => {
+        navigation.navigate('Otp', { email: email });
+      });
   };
 
   return (
@@ -70,10 +65,12 @@ const ForgetPasswordScreen = () => {
               onPress={() => {
                 handleSendOtp(email);
               }}
+              disabled={loading}
             />
           </View>
         </KeyboardAvoidingView>
       </ScrollView>
+      <Toast />
     </SafeAreaView>
   );
 };

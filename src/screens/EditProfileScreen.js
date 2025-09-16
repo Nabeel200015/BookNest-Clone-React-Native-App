@@ -27,9 +27,9 @@ const EditProfileScreen = () => {
   const [loading, setLoading] = useState(false);
   const { user } = useSelector(state => state.auth);
   const [form, setForm] = useState({
-    firstname: user.data.firstname || '',
-    lastname: user.data.lastname || '',
-    phoneno: user.data.phoneno || '',
+    firstname: user.firstname || '',
+    lastname: user.lastname || '',
+    phoneno: user.phoneno || '',
   });
   const [passwords, setPasswords] = useState({
     current: '',
@@ -212,7 +212,7 @@ const EditProfileScreen = () => {
                 color={theme.colors.textTertiary}
                 iconStyle="solid"
               />
-              <Text style={styles.emailText}>{user.data.email}</Text>
+              <Text style={styles.emailText}>{user.email}</Text>
             </View>
             <InputComp
               leftIcon={'phone'}

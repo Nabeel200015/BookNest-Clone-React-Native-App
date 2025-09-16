@@ -13,11 +13,16 @@ import theme from '../constants/theme';
 import InputComp from '../components/InputComp';
 import { useNavigation } from '@react-navigation/native';
 import ButtonComp from '../components/ButtonComp';
-import booknest from '../services/api';
+import { useDispatch, useSelector } from 'react-redux';
+import { registerUser } from '../redux/authSlice';
+import Toast from 'react-native-toast-message';
 
 const SignupScreen = () => {
   const navigation = useNavigation();
-  const [loading, setLoading] = useState(false);
+
+  const dispatch = useDispatch();
+  const { loading } = useSelector(state => state.auth);
+
   const [form, setForm] = useState({
     email: '',
     password: '',
@@ -30,6 +35,25 @@ const SignupScreen = () => {
     },
   });
 
+  const handleRegister = () => {
+    dispatch(registerUser(form))
+      .unwrap()
+      .then(() => {
+        setForm({
+          email: '',
+          password: '',
+          firstname: '',
+          lastname: '',
+          phoneno: '',
+          address: {
+            city: '',
+            country: '',
+          },
+        });
+        navigation.navigate('Login');
+      });
+  };
+
   const handleChange = (key, value, nestedKey = null) => {
     if (nestedKey) {
       setForm(prev => ({
@@ -41,26 +65,6 @@ const SignupScreen = () => {
       }));
     } else {
       setForm(prev => ({ ...prev, [key]: value }));
-    }
-  };
-
-  const handleRegister = async value => {
-    try {
-      setLoading(true);
-      const response = await booknest.post('/users/register', value);
-      console.log('Register Request:', response.data);
-
-      navigation.replace('Login');
-      return Alert.alert(
-        'Registration',
-        response.data?.message || 'Registration successful!',
-      );
-    } catch (error) {
-      console.log('API Error:', error.response?.data?.message);
-
-      return Alert.alert('Registeration Failed', error.response?.data?.message);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -147,6 +151,7 @@ const SignupScreen = () => {
             <ButtonComp
               title={!loading ? 'Sign up' : 'Loading...'}
               onPress={() => handleRegister(form)}
+              disabled={loading}
             />
           </View>
 
@@ -161,6 +166,7 @@ const SignupScreen = () => {
           </View>
         </KeyboardAvoidingView>
       </ScrollView>
+      <Toast />
     </SafeAreaView>
   );
 };

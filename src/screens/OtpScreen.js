@@ -16,6 +16,9 @@ import Icon from '../assets/icons/backarrow.svg';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import ButtonComp from '../components/ButtonComp';
 import booknest from '../services/api';
+import { sendOtp, verifyOtp } from '../redux/authSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import Toast from 'react-native-toast-message';
 
 const OTP_LENGTH = 6;
 
@@ -24,7 +27,8 @@ const OtpScreen = () => {
   const navigation = useNavigation();
   const [otp, setOtp] = useState(Array(OTP_LENGTH).fill(''));
   const inputs = useRef([]);
-  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
+  const { loading } = useSelector(state => state.auth);
 
   const handleChange = (text, index) => {
     if (/^\d$/.test(text)) {
@@ -60,42 +64,26 @@ const OtpScreen = () => {
       return Alert.alert('Invalid OTP', 'Please enter a valid 6-digit OTP.');
     }
 
-    try {
-      setLoading(true);
-
-      const response = await booknest.post('/users/verifyotp', {
-        email: email,
-        otp: code,
+    dispatch(verifyOtp({ email: email, otp: code }))
+      .unwrap()
+      .then(() => {
+        navigation.navigate('SetNewPass', { email: email });
       });
-
-      console.log('Data', { email, otp });
-
-      console.log('OTP Status', response.data?.message);
-
-      navigation.navigate('SetNewPass', { email: email });
-      return Alert.alert('OTP', response.data?.message);
-    } catch (error) {
-      console.log('API Error', error.response?.data?.message);
-      return Alert.alert('OTP Status', error.response?.data?.message);
-    } finally {
-      setLoading(false);
-    }
   };
 
   const handleResend = async () => {
     const email = route?.email;
-    try {
-      setLoading(true);
-      const response = await booknest.post('/users/sendotp', { email: email });
-      console.log('OTP Resend', response.data?.message);
-
-      return Alert.alert('OTP Resend', response.data?.message);
-    } catch (error) {
-      console.log('API Error', error.response?.data?.message);
-      return Alert.alert('OTP Resend', error.response?.data?.message);
-    } finally {
-      setLoading(false);
-    }
+    dispatch(sendOtp(email))
+      .unwrap()
+      .then(() => {
+        Toast.show({
+          position: 'top',
+          type: 'success',
+          text1: '✅ OTP sent successfully!',
+          text2: 'Please check your email',
+          text1Style: { color: theme.colors.success },
+        });
+      });
   };
 
   return (
@@ -119,7 +107,7 @@ const OtpScreen = () => {
               <Text
                 style={{
                   color: theme.colors.textPrimary,
-                  fontFamily: 'OpanSans-ExtraBold',
+                  fontFamily: 'OpenSans-Bold',
                 }}
               >
                 OTP
@@ -147,6 +135,7 @@ const OtpScreen = () => {
             activeOpacity={0.5}
             onPress={handleResend}
             style={styles.resendButton}
+            disabled={loading}
           >
             <Text style={styles.resendButtonText}>Resend</Text>
           </TouchableOpacity>
@@ -155,10 +144,12 @@ const OtpScreen = () => {
             <ButtonComp
               title={!loading ? 'Verify otp' : 'loading...'}
               onPress={handleVerifyOtp}
+              disabled={loading}
             />
           </View>
         </KeyboardAvoidingView>
       </ScrollView>
+      <Toast />
     </SafeAreaView>
   );
 };
