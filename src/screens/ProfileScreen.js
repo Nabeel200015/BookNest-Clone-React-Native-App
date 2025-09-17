@@ -19,7 +19,8 @@ import { logoutUser } from '../redux/authSlice';
 const ProfileScreen = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  // const { user } = useSelector(state => state.auth);
+  const { user } = useSelector(state => state.user);
+  console.log('User:', user);
 
   const handleLogout = () => {
     dispatch(logoutUser())
@@ -72,9 +73,9 @@ const ProfileScreen = () => {
 
             <View style={styles.profileTextContainer}>
               <Text style={styles.name}>
-                {/* {`${user.firstname} ${user.lastname}`} */}
+                {`${user.firstname} ${user.lastname}`}
               </Text>
-              <Text style={styles.email}>{/* {user.email} */}</Text>
+              <Text style={styles.email}>{user.email} </Text>
             </View>
           </LinearGradient>
         </View>

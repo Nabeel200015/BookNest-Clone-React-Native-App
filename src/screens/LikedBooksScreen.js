@@ -15,36 +15,18 @@ import LikedBookCard from '../components/LikedBookCard';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
-import { toggleWishlist } from '../redux/bookSlice';
-import booknest from '../services/api';
+import { toggleWishlist } from '../redux/wishlistSlice';
+
+import { addWishlist } from '../redux/wishlistSlice';
 
 const LikedBooksScreen = () => {
-  const { wishlist } = useSelector(state => state.book);
+  const { wishlist } = useSelector(state => state.wishlist);
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
-  const toggleLikeBook = async item => {
-    try {
-      dispatch(toggleWishlist(item));
-      Toast.show({
-        position: 'top',
-        type: 'success',
-        text1: 'Book unliked successfully!',
-        text1Style: { color: theme.colors.success },
-      });
-
-      const response = await booknest.put(`/books/addwishlist/${item._id}`);
-      console.log('Like Book API Res:', response.data);
-    } catch (error) {
-      console.log('Like Book API Error:', error.response?.data?.message);
-      return Toast.show({
-        position: 'top',
-        type: 'error',
-        text1: 'Failed to unslike book!',
-        text1Style: { color: theme.colors.error },
-        text2: 'Please try again.',
-      });
-    }
+  const toggleLike = ({ book }) => {
+    dispatch(toggleWishlist(book));
+    dispatch(addWishlist(book._id));
   };
   return (
     <SafeAreaView style={styles.container}>
@@ -73,7 +55,7 @@ const LikedBooksScreen = () => {
                   onPress={() =>
                     navigation.navigate('BookDetail', { book: item })
                   }
-                  onPressLike={() => toggleLikeBook(item)}
+                  onPressLike={() => toggleLike({ book: item })}
                 />
               )}
               contentContainerStyle={{ padding: theme.spacing.md }}

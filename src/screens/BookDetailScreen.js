@@ -62,38 +62,6 @@ const BookDetailScreen = () => {
     dispatch(requestBid({ bookId: book._id, amount: offerPrice }));
   };
 
-  // const isBookWishlisted = (wishlist || []).some(p => p._id === book._id);
-  // // console.log('isBookWishlisted :', isBookWishlisted);
-
-  // const sellerBooks = books.filter(
-  //   b => b.user._id === book.user._id && b._id !== book._id,
-  // );
-
-  // const handleSubmitBid = async amount => {
-  //   try {
-  //     const response = await booknest.post(`/books/requestbid/${book._id}`, {
-  //       amount: amount,
-  //     });
-  //     console.log('Bid API Res:', response.data);
-  //     return Toast.show({
-  //       position: 'top',
-  //       type: 'success',
-  //       text1: 'Bid sent successfully!',
-  //       text1Style: { color: theme.colors.success },
-  //       text2: `Bid Amount: ${amount}`,
-  //     });
-  //   } catch (error) {
-  //     console.log('Bid API Error:', error.response?.data?.message);
-  //     return Toast.show({
-  //       position: 'top',
-  //       type: 'error',
-  //       text1: 'Bid sent failed!',
-  //       text1Style: { color: theme.colors.error },
-  //       text2: 'Please try again.',
-  //     });
-  //   }
-  // };
-
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
