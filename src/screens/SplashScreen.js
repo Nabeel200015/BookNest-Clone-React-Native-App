@@ -5,17 +5,36 @@ import theme from '../constants/theme';
 import Logo from '../assets/images/whiteLogo.svg';
 import { ActivityIndicator } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
+import { getToken, getUser } from '../utils/storage';
 
 const SplashScreen = () => {
   const navigation = useNavigation();
 
+  const getAsyncStorage = async () => {
+    try {
+      const storedToken = await getToken();
+      const storedUser = await getUser();
+
+      if (storedToken && storedUser) {
+        navigation.replace('Tab');
+      } else {
+        navigation.replace('Login');
+      }
+    } catch (error) {
+      console.log('Error getting async storage:', error);
+      // navigation.replace('Login');
+    }
+  };
+
+  // useEffect(() => {}, []);
   useEffect(() => {
     setTimeout(() => {
-      navigation.replace('Login');
-    }, 2000);
+      getAsyncStorage();
+    }, 3000);
 
     return clearTimeout();
   }, []);
+
   return (
     <SafeAreaView style={styles.container}>
       <Logo width={100} height={100} style={styles.logo} />

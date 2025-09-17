@@ -15,9 +15,14 @@ export const saveToken = async token => {
 //Get Token
 export const getToken = async () => {
   try {
-    return await AsyncStorage.getItem(TOKEN_KEY);
+    const token = await AsyncStorage.getItem(TOKEN_KEY);
+    if (token === null) {
+      throw new Error('Token not found');
+    }
+    return token;
   } catch (error) {
-    return console.log('Error getting token:', error) || null;
+    console.log('Error getting token:', error.message);
+    return null;
   }
 };
 
@@ -42,9 +47,14 @@ export const saveUser = async user => {
 //Get User
 export const getUser = async () => {
   try {
-    return await AsyncStorage.getItem(USER_KEY);
+    const user = await AsyncStorage.getItem(USER_KEY);
+    if (user === null) {
+      throw new Error('User not found');
+    }
+    return user;
   } catch (error) {
-    return console.log('Error getting user:', error) || null;
+    console.log('Error getting user:', error.message);
+    return null;
   }
 };
 

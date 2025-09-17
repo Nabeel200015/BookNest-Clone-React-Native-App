@@ -1,29 +1,89 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import booknest from '../services/api';
+import { getWishlist } from './wishlistSlice';
 
-// fetch books + wishlist + notifications
+// // fetch books + wishlist + notifications
+// export const getBooks = createAsyncThunk(
+//   'book/getBooks',
+//   async ({ params = {}, append = false }, thunkAPI) => {
+//     try {
+//       //fetch books
+//       const query = new URLSearchParams(params).toString();
+//       const response = await booknest.get(`/books/getbooks?${query}`);
+//       console.log('Books Data:', response.data);
+
+//       //fetch wishlist
+//       const res = await booknest.get('/books/getwishlist');
+//       const wishlist = res.data.wishlistBooks;
+//       console.log('Wishlist:', wishlist);
+
+//       //fetch notifications
+//       const resNotify = await booknest.get('/books/notifications');
+//       const notifications = resNotify.data.notifications;
+//       console.log('Notification :', notifications);
+
+//       return { ...response.data, append, wishlist, notifications };
+//     } catch (error) {
+//       console.log('API Error:', error.response?.data || error.message);
+//       return thunkAPI.rejectWithValue(error.response?.data || error.message);
+//     }
+//   },
+// );
+
+// fetch books
 export const getBooks = createAsyncThunk(
   'book/getBooks',
   async ({ params = {}, append = false }, thunkAPI) => {
     try {
-      //fetch books
       const query = new URLSearchParams(params).toString();
       const response = await booknest.get(`/books/getbooks?${query}`);
-      console.log('Books Data:', response.data);
+      console.log('Get Books API:', response.data);
 
-      //fetch wishlist
-      const res = await booknest.get('/books/getwishlist');
-      const wishlist = res.data.wishlistBooks;
-      console.log('Wishlist:', wishlist);
+      //get wishlist
+      thunkAPI.dispatch(getWishlist());
 
-      //fetch notifications
-      const resNotify = await booknest.get('/books/notifications');
-      const notifications = resNotify.data.notifications;
-      console.log('Notification :', notifications);
-
-      return { ...response.data, append, wishlist, notifications };
+      return { ...response.data, append };
     } catch (error) {
-      console.log('API Error:', error.response?.data || error.message);
+      console.log(
+        'Get Books API Error:',
+        error.response?.data || error.message,
+      );
+      return thunkAPI.rejectWithValue(error.response?.data || error.message);
+    }
+  },
+);
+
+//fetch my books
+export const getMyBooks = createAsyncThunk(
+  'book/getMyBooks',
+  async (_, thunkAPI) => {
+    try {
+      const response = await booknest.get('/books/getmybooks');
+      console.log('Get My Books API:', response.data);
+      return response.data;
+    } catch (error) {
+      console.log(
+        'Get My Books API Error:',
+        error.response?.data || error.message,
+      );
+      return thunkAPI.rejectWithValue(error.response?.data || error.message);
+    }
+  },
+);
+
+//fetch selected book
+export const getSelectedBook = createAsyncThunk(
+  'book/getSelectedBook',
+  async (id, thunkAPI) => {
+    try {
+      const response = await booknest.get(`/books/selectedBook/${id}`);
+      console.log('Selected Book API:', response.data);
+      return response.data;
+    } catch (error) {
+      console.log(
+        'Selected Book API Error:',
+        error.response?.data || error.message,
+      );
       return thunkAPI.rejectWithValue(error.response?.data || error.message);
     }
   },
@@ -33,32 +93,16 @@ const booksSlice = createSlice({
   name: 'book',
   initialState: {
     books: [],
-    wishlist: [],
-    notifications: [],
+    myBooks: [],
+    selectedBook: {},
+    moreBooks: [],
     currentPage: 1,
     totalPage: 1,
     totalBooks: 0,
     loading: false,
     error: null,
   },
-  reducers: {
-    toggleWishlist: (state, action) => {
-      const book = action.payload;
-      const wishlist = state.wishlist || [];
-
-      const exist = wishlist.find(b => b._id === book._id);
-      if (exist) {
-        // remove book if already exists
-        const filterWishList = wishlist.filter(b => b._id !== book._id); // filtered wishlist
-
-        state.wishlist = filterWishList; //update wishlist with filter wishlist
-        console.log('Removed from wishlist:', book._id);
-      } else {
-        state.wishlist.push(book); // add book to wishlist
-        console.log('Added to wishlist:', book._id);
-      }
-    },
-  },
+  reducers: {},
   extraReducers: builder => {
     builder
       //getBooks
@@ -69,24 +113,49 @@ const booksSlice = createSlice({
       .addCase(getBooks.fulfilled, (state, action) => {
         state.loading = false;
         if (action.payload.append) {
-          // append books for infinite scroll
           state.books = [...state.books, ...action.payload.books];
         } else {
-          // fresh load
           state.books = action.payload.books;
         }
-        state.wishlist = action.payload.wishlist || [];
-        state.notifications = action.payload.notifications || [];
         state.currentPage = action.payload.currentPage;
-        state.totalPage = action.payload.totalPages;
+        state.totalPage = action.payload.totalPage;
         state.totalBooks = action.payload.totalBooks;
       })
       .addCase(getBooks.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || 'Something went wrong';
+        state.error = action.payload;
+      })
+
+      //getMyBooks
+      .addCase(getMyBooks.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getMyBooks.fulfilled, (state, action) => {
+        state.loading = false;
+        state.myBooks = action.payload;
+      })
+      .addCase(getMyBooks.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      //selectedBook
+      .addCase(getSelectedBook.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getSelectedBook.fulfilled, (state, action) => {
+        state.loading = false;
+        state.selectedBook = action.payload.selected;
+        state.moreBooks = action.payload.moreBooks;
+      })
+      .addCase(getSelectedBook.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });
 
-export const { toggleWishlist } = booksSlice.actions;
+// export const { toggleWishlist } = booksSlice.actions;
 export default booksSlice.reducer;

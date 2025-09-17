@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import Icon from '@react-native-vector-icons/fontawesome6';
 import theme from '../constants/theme';
+import { BASE_URL } from '../utils/routes';
 
 const BookCard = ({
   book,
@@ -64,7 +65,7 @@ const BookCard = ({
       {/* Book Image */}
       <View style={styles.imageContainer}>
         <Image
-          source={{ uri: `http://192.168.18.40:3000/${book.images[0]}` }}
+          source={{ uri: BASE_URL + '/' + book.images[0] }}
           style={styles.bookImage}
           resizeMode="cover"
         />
@@ -121,7 +122,7 @@ const BookCard = ({
               <Image
                 source={{
                   uri: book.user.profileImage
-                    ? `http://192.168.18.40:3000/${book.user.profileImage}`
+                    ? BASE_URL + '/' + book.user.profileImage
                     : `https://ui-avatars.com/api/?name=${book.user.firstname}+${book.user.lastname}`,
                 }}
                 style={styles.sellerImage}

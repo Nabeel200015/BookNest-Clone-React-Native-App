@@ -29,7 +29,9 @@ const LoginScreen = () => {
   const { loading } = useSelector(state => state.auth);
 
   const handleLogin = data => {
-    dispatch(loginUser(data));
+    dispatch(loginUser(data))
+      .unwrap()
+      .then(() => navigation.replace('Tab'));
   };
 
   const handleSendVerificationEmail = email => {

@@ -13,7 +13,7 @@ import BookCard from '../components/BookCard';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { getBooks } from '../redux/bookSlice';
-import { loadUser } from '../redux/authSlice';
+import Loading from '../components/Loading';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -24,17 +24,12 @@ const HomeScreen = () => {
 
   useEffect(() => {
     //load first page
-    dispatch(getBooks({ params: { page: 1, mostpopular: true } }));
+    dispatch(getBooks({ params: { page: 1 } }));
   }, []);
 
   const loadMore = () => {
     if (!loading && currentPage < totalPages) {
-      dispatch(
-        getBooks({
-          params: { page: currentPage + 1, mostpopular: true },
-          append: true, // 👈 append flag
-        }),
-      );
+      dispatch(getBooks({ params: { page: currentPage + 1 }, append: true }));
     }
   };
 
@@ -46,13 +41,7 @@ const HomeScreen = () => {
         onPressTwo={() => navigation.navigate('Notification')}
       />
 
-      {loading && books.length === 0 && (
-        <View
-          style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
-        >
-          <ActivityIndicator size="large" color={theme.colors.primary} />
-        </View>
-      )}
+      {loading && books.length === 0 && <Loading size={'large'} />}
       {error && (
         <View
           style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}

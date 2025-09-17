@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import theme from '../constants/theme';
+import { BASE_URL } from '../utils/routes';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -59,9 +60,7 @@ const ImageCarousel = ({
     <View style={styles.slide}>
       <Image
         source={
-          typeof item === 'string'
-            ? { uri: `http://192.168.18.40:3000/${item}` }
-            : item
+          typeof item === 'string' ? { uri: BASE_URL + '/' + item } : item
         }
         style={[styles.image, imageStyle]}
         resizeMode="cover"

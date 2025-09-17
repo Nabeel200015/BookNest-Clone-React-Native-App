@@ -45,8 +45,8 @@ export const loginUser = createAsyncThunk(
       //save token and user to AsyncStorage
       await saveToken(token);
       await saveUser(JSON.stringify(user));
-      console.log('Login User:', JSON.stringify(user));
-      console.log('Token:', token);
+      // console.log('Login User:', JSON.stringify(user));
+      // console.log('Token:', token);
 
       return { token, user };
     } catch (error) {
@@ -56,7 +56,7 @@ export const loginUser = createAsyncThunk(
         type: 'error',
         text1: '❌ Failed to Login..',
         text1Style: { color: theme.colors.error },
-        text2: error.response?.data?.message || error,
+        text2: error.response?.data?.message || error.message,
       });
       return thunkAPI.rejectWithValue(
         error.response?.data?.message || 'Login Failed',
@@ -94,7 +94,7 @@ export const sendVerificationEmail = createAsyncThunk(
         type: 'error',
         text1: '❌ Failed to send verification email..',
         text1Style: { color: theme.colors.error },
-        text2: error.response?.data?.message || error,
+        text2: error.response?.data?.message || error.message,
       });
       return thunkAPI.rejectWithValue(
         error.response?.data?.message || 'Verification Failed',
@@ -123,7 +123,7 @@ export const registerUser = createAsyncThunk(
         type: 'error',
         text1: '❌ Failed to Register..',
         text1Style: { color: theme.colors.error },
-        text2: error.response?.data?.message || error,
+        text2: error.response?.data?.message || error.message,
       });
 
       return thunkAPI.rejectWithValue(
@@ -151,7 +151,7 @@ export const sendOtp = createAsyncThunk(
         type: 'error',
         text1: '❌ Failed to Send Otp..',
         text1Style: { color: theme.colors.error },
-        text2: error.response?.data?.message || error,
+        text2: error.response?.data?.message || error.message,
       });
       return thunkAPI.rejectWithValue(
         error.response?.data?.message || 'Send Otp Failed',
@@ -178,7 +178,7 @@ export const verifyOtp = createAsyncThunk(
         type: 'error',
         text1: '❌ Failed to Verify Otp..',
         text1Style: { color: theme.colors.error },
-        text2: error.response?.data?.message || error,
+        text2: error.response?.data?.message || error.message,
       });
 
       return thunkAPI.rejectWithValue(
@@ -209,7 +209,7 @@ export const resetPassword = createAsyncThunk(
         type: 'error',
         text1: '❌ Failed to Reset Password..',
         text1Style: { color: theme.colors.error },
-        text2: error.response?.data?.message || error,
+        text2: error.response?.data?.message || error.message,
       });
       return thunkAPI.rejectWithValue(
         error.response?.data?.message || 'Reset Password Failed',

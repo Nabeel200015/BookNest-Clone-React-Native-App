@@ -13,95 +13,115 @@ import theme from '../constants/theme';
 import ImageCarousel from '../components/ImageCarousel';
 import Icon from '@react-native-vector-icons/fontawesome6';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import Loading from '../components/Loading';
 import LinearGradient from 'react-native-linear-gradient';
 import SellerRecommendationCard from '../components/SellerRecommendationCard';
 import booknest from '../services/api';
 import { useDispatch, useSelector } from 'react-redux';
-import { toggleWishlist } from '../redux/bookSlice';
+import { getSelectedBook } from '../redux/bookSlice';
 import MakeOfferModal from '../components/MakeOfferModal';
 import Toast from 'react-native-toast-message';
 import ContactSellerModal from '../components/ContactSellerModal';
+import { BASE_URL } from '../utils/routes';
+import { addWishlist, toggleWishlist } from '../redux/wishlistSlice';
 
 const BookDetailScreen = () => {
-  const route = useRoute().params;
   const navigation = useNavigation();
-  const { books, wishlist } = useSelector(state => state.book);
+  const route = useRoute().params;
+  const { selectedBook, moreBooks, loading } = useSelector(state => state.book);
+  const { wishlist, loading: wishlistLoading } = useSelector(
+    state => state.wishlist,
+  );
   const dispatch = useDispatch();
-  const recBook = route?.book;
-  const book = books.find(p => p._id === recBook._id);
-  const user = useSelector(state => state.auth).user;
-  const yourBook = book.user._id === user._id;
+
+  const book = route?.book;
+  const isLiked = (wishlist || []).some(p => p._id === book._id);
+  console.log('wishlist :', wishlist);
+
+  useEffect(() => {
+    dispatch(getSelectedBook(book._id));
+  }, [dispatch]);
+
+  const toggleLike = () => {
+    dispatch(toggleWishlist(book));
+    dispatch(addWishlist(book._id));
+  };
+
+  // const book = books.find(p => p._id === recBook._id);
+  // const user = useSelector(state => state.auth).user;
+  // const yourBook = book.user._id === user._id;
   // console.log('filtered :', book);
   // console.log('user :', user);
 
-  const [offerPrice, setOfferPrice] = useState('');
-  const [makeOffer, setMakeOffer] = useState(false);
-  const makeOfferOpen = () => setMakeOffer(true);
-  const makeOfferClose = () => setMakeOffer(false);
+  // const [offerPrice, setOfferPrice] = useState('');
+  // const [makeOffer, setMakeOffer] = useState(false);
+  // const makeOfferOpen = () => setMakeOffer(true);
+  // const makeOfferClose = () => setMakeOffer(false);
 
-  const [contactSeller, setContactSeller] = useState(false);
-  const contactSellerOpen = () => setContactSeller(true);
-  const contactSellerClose = () => setContactSeller(false);
+  // const [contactSeller, setContactSeller] = useState(false);
+  // const contactSellerOpen = () => setContactSeller(true);
+  // const contactSellerClose = () => setContactSeller(false);
 
-  const isBookWishlisted = (wishlist || []).some(p => p._id === book._id);
-  // console.log('isBookWishlisted :', isBookWishlisted);
+  // const isBookWishlisted = (wishlist || []).some(p => p._id === book._id);
+  // // console.log('isBookWishlisted :', isBookWishlisted);
 
-  const sellerBooks = books.filter(
-    b => b.user._id === book.user._id && b._id !== book._id,
-  );
+  // const sellerBooks = books.filter(
+  //   b => b.user._id === book.user._id && b._id !== book._id,
+  // );
   // console.log('sellerBooks :', sellerBooks);
   // console.log('Your book:', yourBook);
 
-  const toggleLikeBook = async item => {
-    try {
-      dispatch(toggleWishlist(book));
-      Toast.show({
-        position: 'top',
-        type: 'success',
-        text1: isBookWishlisted
-          ? 'Book unliked successfully!'
-          : 'Book liked successfully!',
-        text1Style: { color: theme.colors.success },
-      });
+  // const toggleLikeBook = async item => {
+  //   try {
+  //     dispatch(toggleWishlist(book));
+  //     Toast.show({
+  //       position: 'top',
+  //       type: 'success',
+  //       text1: isBookWishlisted
+  //         ? 'Book unliked successfully!'
+  //         : 'Book liked successfully!',
+  //       text1Style: { color: theme.colors.success },
+  //     });
 
-      const response = await booknest.put(`/books/addwishlist/${item._id}`);
-      console.log('Like Book API Res:', response.data);
-    } catch (error) {
-      console.log('Like Book API Error:', error.response?.data?.message);
-      return Toast.show({
-        position: 'top',
-        type: 'error',
-        text1: 'Failed to like book!',
-        text1Style: { color: theme.colors.error },
-        text2: 'Please try again.',
-      });
-    }
-  };
+  //     const response = await booknest.put(`/books/addwishlist/${item._id}`);
+  //     console.log('Like Book API Res:', response.data);
+  //   } catch (error) {
+  //     console.log('Like Book API Error:', error.response?.data?.message);
+  //     return Toast.show({
+  //       position: 'top',
+  //       type: 'error',
+  //       text1: 'Failed to like book!',
+  //       text1Style: { color: theme.colors.error },
+  //       text2: 'Please try again.',
+  //     });
+  //   }
+  // };
 
-  const handleSubmitBid = async amount => {
-    try {
-      const response = await booknest.post(`/books/requestbid/${book._id}`, {
-        amount: amount,
-      });
-      console.log('Bid API Res:', response.data);
-      return Toast.show({
-        position: 'top',
-        type: 'success',
-        text1: 'Bid sent successfully!',
-        text1Style: { color: theme.colors.success },
-        text2: `Bid Amount: ${amount}`,
-      });
-    } catch (error) {
-      console.log('Bid API Error:', error.response?.data?.message);
-      return Toast.show({
-        position: 'top',
-        type: 'error',
-        text1: 'Bid sent failed!',
-        text1Style: { color: theme.colors.error },
-        text2: 'Please try again.',
-      });
-    }
-  };
+  // const handleSubmitBid = async amount => {
+  //   try {
+  //     const response = await booknest.post(`/books/requestbid/${book._id}`, {
+  //       amount: amount,
+  //     });
+  //     console.log('Bid API Res:', response.data);
+  //     return Toast.show({
+  //       position: 'top',
+  //       type: 'success',
+  //       text1: 'Bid sent successfully!',
+  //       text1Style: { color: theme.colors.success },
+  //       text2: `Bid Amount: ${amount}`,
+  //     });
+  //   } catch (error) {
+  //     console.log('Bid API Error:', error.response?.data?.message);
+  //     return Toast.show({
+  //       position: 'top',
+  //       type: 'error',
+  //       text1: 'Bid sent failed!',
+  //       text1Style: { color: theme.colors.error },
+  //       text2: 'Please try again.',
+  //     });
+  //   }
+  // };
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
@@ -155,22 +175,19 @@ const BookDetailScreen = () => {
             <TouchableOpacity
               style={[
                 styles.likeButton,
-                isBookWishlisted && {
+                isLiked && {
                   backgroundColor: 'rgba(247, 39, 39, 0.2)',
                 },
               ]}
               activeOpacity={0.7}
-              onPress={() => toggleLikeBook(book)}
+              onPress={() => toggleLike()}
+              disabled={wishlistLoading}
             >
               <Icon
                 name={'heart'}
                 size={24}
-                color={
-                  isBookWishlisted
-                    ? theme.colors.error
-                    : theme.colors.textTertiary
-                }
-                iconStyle={isBookWishlisted ? 'solid' : 'regular'}
+                color={isLiked ? theme.colors.error : theme.colors.textTertiary}
+                iconStyle={isLiked ? 'solid' : 'regular'}
               />
             </TouchableOpacity>
           </View>
@@ -179,28 +196,41 @@ const BookDetailScreen = () => {
           <View style={styles.discriptionSection}>
             <Text style={styles.discriptionTitle}>Description</Text>
 
-            <Text style={styles.discriptionText}>{book.description}</Text>
+            <Text style={styles.discriptionText}>
+              {selectedBook.description}
+            </Text>
           </View>
 
           {/*Profile Detail with profile Picture, name, and member joined date */}
           <View style={styles.profileCard}>
-            <Image
-              source={{
-                uri: `https://ui-avatars.com/api/?name=${book.user.firstname}+${book.user.lastname}`,
-              }}
-              style={styles.profileImage}
-            />
+            {loading ? (
+              <Loading size={'small'} />
+            ) : (
+              <>
+                <Image
+                  source={{
+                    uri: selectedBook?.user?.profileimage
+                      ? BASE_URL + '/' + selectedBook?.user?.profileimage
+                      : `https://ui-avatars.com/api/?name=${book.user.firstname}+${book.user.lastname}`,
+                  }}
+                  style={styles.profileImage}
+                />
 
-            <View style={styles.profileText}>
-              <Text
-                style={styles.name}
-              >{`${book.user.firstname} ${book.user.lastname}`}</Text>
-              <Text style={styles.memberSince}>Member since 6/13/2025</Text>
-            </View>
+                <View style={styles.profileText}>
+                  <Text
+                    style={styles.name}
+                  >{`${selectedBook?.user?.firstname} ${selectedBook?.user?.lastname}`}</Text>
+                  <Text style={styles.memberSince}>
+                    Member since{' '}
+                    {new Date(selectedBook.createdAt).toLocaleDateString()}
+                  </Text>
+                </View>
+              </>
+            )}
           </View>
 
           {/*Buttons*/}
-          {yourBook ? (
+          {/* {yourBook ? (
             <View style={styles.yourBookContainer}>
               <LinearGradient
                 style={styles.yourBookCard}
@@ -273,7 +303,7 @@ const BookDetailScreen = () => {
                 </LinearGradient>
               </TouchableOpacity>
             </View>
-          )}
+          )} */}
         </View>
 
         {/*Recommedation Card */}
@@ -281,11 +311,11 @@ const BookDetailScreen = () => {
           {/*Heading */}
           <Text style={styles.headingText}>More From This Seller</Text>
 
-          {/*Recommedation Books FlatList */}
-          {sellerBooks.length > 0 ? (
+          {/* Recommedation Books FlatList */}
+          {moreBooks.length > 0 ? (
             <View style={styles.flatList}>
               <FlatList
-                data={sellerBooks}
+                data={moreBooks}
                 keyExtractor={item => item._id}
                 renderItem={({ item }) => (
                   <SellerRecommendationCard
@@ -304,7 +334,8 @@ const BookDetailScreen = () => {
               There is no more Books avalaible...
             </Text>
           )}
-          <MakeOfferModal
+
+          {/* <MakeOfferModal
             visible={makeOffer}
             bookTitle={book.title}
             originalPrice={book.price}
@@ -317,7 +348,7 @@ const BookDetailScreen = () => {
             visible={contactSeller}
             onClose={contactSellerClose}
             number={book.user.phoneno}
-          />
+          /> */}
         </View>
       </ScrollView>
       <Toast />
