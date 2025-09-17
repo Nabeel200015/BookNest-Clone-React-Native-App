@@ -1,6 +1,9 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import booknest from '../services/api';
 import { getWishlist } from './wishlistSlice';
+import Toast from 'react-native-toast-message';
+import theme from '../constants/theme';
+import { getNotifications } from './notificationSlice';
 
 // // fetch books + wishlist + notifications
 // export const getBooks = createAsyncThunk(
@@ -41,6 +44,9 @@ export const getBooks = createAsyncThunk(
 
       //get wishlist
       thunkAPI.dispatch(getWishlist());
+
+      //get notifications
+      thunkAPI.dispatch(getNotifications());
 
       return { ...response.data, append };
     } catch (error) {
@@ -84,6 +90,43 @@ export const getSelectedBook = createAsyncThunk(
         'Selected Book API Error:',
         error.response?.data || error.message,
       );
+      return thunkAPI.rejectWithValue(error.response?.data || error.message);
+    }
+  },
+);
+
+//request bid
+export const requestBid = createAsyncThunk(
+  'book/requestBid',
+  async ({ bookId, amount }, thunkAPI) => {
+    try {
+      const response = await booknest.post(`/books/requestbid/${bookId}`, {
+        amount: amount,
+      });
+      console.log('Request Bid API:', response.data);
+
+      Toast.show({
+        position: 'top',
+        type: 'success',
+        text1: '✅ Bid sent successfully!',
+        text1Style: { color: theme.colors.success },
+        text2: `Bid Amount: Rs ${amount}`,
+      });
+
+      return response.data;
+    } catch (error) {
+      console.log(
+        'Request Bid API Error:',
+        error.response?.data || error.message,
+      );
+
+      Toast.show({
+        position: 'top',
+        type: 'error',
+        text1: '❌ Failed to send bid..',
+        text1Style: { color: theme.colors.error },
+        text2: error.response?.data?.message || error.message,
+      });
       return thunkAPI.rejectWithValue(error.response?.data || error.message);
     }
   },

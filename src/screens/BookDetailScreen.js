@@ -18,7 +18,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import SellerRecommendationCard from '../components/SellerRecommendationCard';
 import booknest from '../services/api';
 import { useDispatch, useSelector } from 'react-redux';
-import { getSelectedBook } from '../redux/bookSlice';
+import { getSelectedBook, requestBid } from '../redux/bookSlice';
 import MakeOfferModal from '../components/MakeOfferModal';
 import Toast from 'react-native-toast-message';
 import ContactSellerModal from '../components/ContactSellerModal';
@@ -28,39 +28,39 @@ import { addWishlist, toggleWishlist } from '../redux/wishlistSlice';
 const BookDetailScreen = () => {
   const navigation = useNavigation();
   const route = useRoute().params;
+  const dispatch = useDispatch();
   const { selectedBook, moreBooks, loading } = useSelector(state => state.book);
+  const { user } = useSelector(state => state.user);
   const { wishlist, loading: wishlistLoading } = useSelector(
     state => state.wishlist,
   );
-  const dispatch = useDispatch();
 
   const book = route?.book;
   const isLiked = (wishlist || []).some(p => p._id === book._id);
-  console.log('wishlist :', wishlist);
 
+  // console.log('wishlist :', wishlist);
+
+  //fetch selected book
   useEffect(() => {
     dispatch(getSelectedBook(book._id));
   }, [dispatch]);
 
+  //toggle wishlist
   const toggleLike = () => {
     dispatch(toggleWishlist(book));
     dispatch(addWishlist(book._id));
   };
 
-  // const book = books.find(p => p._id === recBook._id);
-  // const user = useSelector(state => state.auth).user;
-  // const yourBook = book.user._id === user._id;
-  // console.log('filtered :', book);
-  // console.log('user :', user);
+  //Contact Seller
+  const [contact, setContact] = useState(false);
 
-  // const [offerPrice, setOfferPrice] = useState('');
-  // const [makeOffer, setMakeOffer] = useState(false);
-  // const makeOfferOpen = () => setMakeOffer(true);
-  // const makeOfferClose = () => setMakeOffer(false);
+  //Make Offer
+  const [offerPrice, setOfferPrice] = useState('');
+  const [makeOffer, setMakeOffer] = useState(false);
 
-  // const [contactSeller, setContactSeller] = useState(false);
-  // const contactSellerOpen = () => setContactSeller(true);
-  // const contactSellerClose = () => setContactSeller(false);
+  const handleMakeOffer = () => {
+    dispatch(requestBid({ bookId: book._id, amount: offerPrice }));
+  };
 
   // const isBookWishlisted = (wishlist || []).some(p => p._id === book._id);
   // // console.log('isBookWishlisted :', isBookWishlisted);
@@ -68,34 +68,6 @@ const BookDetailScreen = () => {
   // const sellerBooks = books.filter(
   //   b => b.user._id === book.user._id && b._id !== book._id,
   // );
-  // console.log('sellerBooks :', sellerBooks);
-  // console.log('Your book:', yourBook);
-
-  // const toggleLikeBook = async item => {
-  //   try {
-  //     dispatch(toggleWishlist(book));
-  //     Toast.show({
-  //       position: 'top',
-  //       type: 'success',
-  //       text1: isBookWishlisted
-  //         ? 'Book unliked successfully!'
-  //         : 'Book liked successfully!',
-  //       text1Style: { color: theme.colors.success },
-  //     });
-
-  //     const response = await booknest.put(`/books/addwishlist/${item._id}`);
-  //     console.log('Like Book API Res:', response.data);
-  //   } catch (error) {
-  //     console.log('Like Book API Error:', error.response?.data?.message);
-  //     return Toast.show({
-  //       position: 'top',
-  //       type: 'error',
-  //       text1: 'Failed to like book!',
-  //       text1Style: { color: theme.colors.error },
-  //       text2: 'Please try again.',
-  //     });
-  //   }
-  // };
 
   // const handleSubmitBid = async amount => {
   //   try {
@@ -209,9 +181,9 @@ const BookDetailScreen = () => {
               <>
                 <Image
                   source={{
-                    uri: selectedBook?.user?.profileimage
-                      ? BASE_URL + '/' + selectedBook?.user?.profileimage
-                      : `https://ui-avatars.com/api/?name=${book.user.firstname}+${book.user.lastname}`,
+                    uri: !selectedBook?.user?.profileimage
+                      ? `https://ui-avatars.com/api/?name=${book.user.firstname}+${book.user.lastname}`
+                      : BASE_URL + '/' + selectedBook?.user?.profileimage,
                   }}
                   style={styles.profileImage}
                 />
@@ -230,7 +202,7 @@ const BookDetailScreen = () => {
           </View>
 
           {/*Buttons*/}
-          {/* {yourBook ? (
+          {book.user._id === user._id ? (
             <View style={styles.yourBookContainer}>
               <LinearGradient
                 style={styles.yourBookCard}
@@ -255,7 +227,10 @@ const BookDetailScreen = () => {
             </View>
           ) : (
             <View style={styles.buttonsContainer}>
-              <TouchableOpacity activeOpacity={0.6} onPress={contactSellerOpen}>
+              <TouchableOpacity
+                activeOpacity={0.6}
+                onPress={() => setContact(true)}
+              >
                 <LinearGradient
                   style={styles.button}
                   colors={['#2A48DE', '#1e88e5']}
@@ -286,7 +261,10 @@ const BookDetailScreen = () => {
                 </Text>
               </TouchableOpacity>
 
-              <TouchableOpacity activeOpacity={0.6} onPress={makeOfferOpen}>
+              <TouchableOpacity
+                activeOpacity={0.6}
+                onPress={() => setMakeOffer(true)}
+              >
                 <LinearGradient
                   style={styles.button}
                   colors={['#9c27b0', '#3949ab']}
@@ -303,7 +281,7 @@ const BookDetailScreen = () => {
                 </LinearGradient>
               </TouchableOpacity>
             </View>
-          )} */}
+          )}
         </View>
 
         {/*Recommedation Card */}
@@ -335,20 +313,21 @@ const BookDetailScreen = () => {
             </Text>
           )}
 
-          {/* <MakeOfferModal
+          <ContactSellerModal
+            visible={contact}
+            onClose={() => setContact(false)}
+            number={book.user.phoneno}
+          />
+
+          <MakeOfferModal
             visible={makeOffer}
             bookTitle={book.title}
             originalPrice={book.price}
-            onClose={makeOfferClose}
+            onClose={() => setMakeOffer(false)}
             offerAmount={offerPrice}
             setOfferAmount={setOfferPrice}
-            onSubmit={handleSubmitBid}
+            onSubmit={handleMakeOffer}
           />
-          <ContactSellerModal
-            visible={contactSeller}
-            onClose={contactSellerClose}
-            number={book.user.phoneno}
-          /> */}
         </View>
       </ScrollView>
       <Toast />

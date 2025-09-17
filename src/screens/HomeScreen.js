@@ -49,7 +49,7 @@ const HomeScreen = () => {
           <Text
             style={{ ...theme.Typography.title, color: theme.colors.warning }}
           >
-            Error: {error}
+            {error}
           </Text>
         </View>
       )}

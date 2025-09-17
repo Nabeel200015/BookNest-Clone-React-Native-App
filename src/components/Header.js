@@ -22,8 +22,10 @@ const Header = ({
   title,
 }) => {
   const navigation = useNavigation();
-  // const { notifications } = useSelector(state => state.book);
-  // const notification = notifications.length > 0;
+
+  const { notifications } = useSelector(state => state.notification);
+  const notification = notifications.length > 0;
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -86,11 +88,11 @@ const Header = ({
                   <Icon
                     name={rightIconTwo}
                     size={24}
-                    // color={
-                    //   notification
-                    //     ? theme.colors.info
-                    //     : theme.colors.textSecondary
-                    // }
+                    color={
+                      notification
+                        ? theme.colors.info
+                        : theme.colors.textSecondary
+                    }
                     iconStyle="solid"
                   />
                 </TouchableOpacity>

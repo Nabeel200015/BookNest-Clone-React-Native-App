@@ -9,6 +9,7 @@ import {
 } from '../utils/storage';
 import Toast from 'react-native-toast-message';
 import theme from '../constants/theme';
+import { fetchUser } from './userSlice';
 
 // //Login thunk
 // export const loginUser = createAsyncThunk(
@@ -41,6 +42,9 @@ export const loginUser = createAsyncThunk(
       const response = await booknest.post('/users/login', formData);
       console.log('Login API :', response);
       const { token, user } = response.data;
+
+      //fetchUser
+      thunkAPI.dispatch(fetchUser());
 
       //save token and user to AsyncStorage
       await saveToken(token);

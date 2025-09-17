@@ -14,7 +14,7 @@ import { useSelector } from 'react-redux';
 import NotificationCard from '../components/NotificationCard';
 
 const NotificationScreen = () => {
-  const { notifications } = useSelector(state => state.book);
+  const { notifications } = useSelector(state => state.notification);
   console.log('Notifys:', notifications);
 
   return (

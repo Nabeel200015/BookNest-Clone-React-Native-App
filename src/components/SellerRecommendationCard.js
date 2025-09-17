@@ -4,7 +4,7 @@ import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import theme from '../constants/theme';
 
 const SellerRecommendationCard = ({ book, onPress, style }) => {
-  console.log('Book received in SellerRecommendationCard:', book);
+  // console.log('Book received in SellerRecommendationCard:', book);
 
   // Function to format the price
   const formatPrice = amount => {

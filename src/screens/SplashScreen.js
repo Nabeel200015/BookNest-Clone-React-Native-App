@@ -6,9 +6,12 @@ import Logo from '../assets/images/whiteLogo.svg';
 import { ActivityIndicator } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { getToken, getUser } from '../utils/storage';
+import { useDispatch } from 'react-redux';
+import { fetchUser } from '../redux/userSlice';
 
 const SplashScreen = () => {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
 
   const getAsyncStorage = async () => {
     try {
@@ -16,6 +19,7 @@ const SplashScreen = () => {
       const storedUser = await getUser();
 
       if (storedToken && storedUser) {
+        dispatch(fetchUser());
         navigation.replace('Tab');
       } else {
         navigation.replace('Login');
