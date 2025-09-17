@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import theme from '../constants/theme';
 import Header from '../components/Header';
@@ -15,12 +15,13 @@ import Icon from '@react-native-vector-icons/fontawesome6';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { logoutUser } from '../redux/authSlice';
+import { fetchUser } from '../redux/userSlice';
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const { user } = useSelector(state => state.user);
-  console.log('User:', user);
+  const { user, error } = useSelector(state => state.user);
+  console.log('Users:', user);
 
   const handleLogout = () => {
     dispatch(logoutUser())
@@ -57,92 +58,116 @@ const ProfileScreen = () => {
     <SafeAreaView style={styles.container}>
       <Header title={'Profile'} />
       <ScrollView style={styles.container}>
-        {/*Profile Card*/}
-        <View style={styles.profileCardView}>
-          <LinearGradient
-            style={styles.profileCard}
-            colors={['#2A48DE', '#1e88e5']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
+        {error ? (
+          <View
+            style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
           >
-            <Image
-              source={require('../assets/images/profile.png')}
-              style={styles.profileImage}
-              resizeMode="cover"
-            />
-
-            <View style={styles.profileTextContainer}>
-              <Text style={styles.name}>
-                {`${user.firstname} ${user.lastname}`}
-              </Text>
-              <Text style={styles.email}>{user.email} </Text>
-            </View>
-          </LinearGradient>
-        </View>
-
-        {/*Liked Books and Notification Buttons*/}
-        <View style={styles.buttonsContainer}>
-          <TouchableOpacity
-            style={[styles.button, { backgroundColor: 'rgb(255, 235, 238)' }]}
-            onPress={() => navigation.navigate('LikedBooks')}
-            activeOpacity={0.6}
-          >
-            <Icon
-              name={'heart'}
-              size={24}
-              color={theme.colors.textSecondary}
-              iconStyle={'regular'}
-            />
-            <Text style={[styles.buttonText, { color: 'rgb(231, 131, 132)' }]}>
-              Liked Books
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.button, { backgroundColor: 'rgb(214, 234, 250)' }]}
-            onPress={() => navigation.navigate('Notification')}
-            activeOpacity={0.6}
-          >
-            <Icon
-              name={'bell'}
-              size={24}
-              color={theme.colors.textSecondary}
-              iconStyle={'regular'}
-            />
-            <Text style={[styles.buttonText, { color: 'rgb(99, 163, 226)' }]}>
-              Notifications
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/*Options Buttons */}
-        <View style={styles.optionButtonsContainer}>
-          {options.map((btn, idx) => (
-            <TouchableOpacity
-              style={styles.option}
-              key={btn.id}
-              onPress={btn.onPress}
+            <Text
+              style={{ ...theme.Typography.title, color: theme.colors.warning }}
             >
-              <Icon
-                name={btn.Icon}
-                size={20}
-                iconStyle={'solid'}
-                color={
-                  btn.id === 4
-                    ? 'rgba(241, 116, 118, 1)'
-                    : theme.colors.textSecondary
-                }
-              />
-              <Text
-                style={[
-                  styles.optionText,
-                  btn.id === 4 && { color: 'rgba(246, 106, 109, 1)' },
-                ]}
+              {error}
+            </Text>
+          </View>
+        ) : (
+          <>
+            {/*Profile Card*/}
+            <View style={styles.profileCardView}>
+              <LinearGradient
+                style={styles.profileCard}
+                colors={['#2A48DE', '#1e88e5']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
               >
-                {btn.text}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+                <Image
+                  source={require('../assets/images/profile.png')}
+                  style={styles.profileImage}
+                  resizeMode="cover"
+                />
+
+                <View style={styles.profileTextContainer}>
+                  <Text style={styles.name}>
+                    {`${user?.firstname} ${user?.lastname}`}
+                  </Text>
+                  <Text style={styles.email}>{user?.email} </Text>
+                </View>
+              </LinearGradient>
+            </View>
+
+            {/*Liked Books and Notification Buttons*/}
+            <View style={styles.buttonsContainer}>
+              <TouchableOpacity
+                style={[
+                  styles.button,
+                  { backgroundColor: 'rgb(255, 235, 238)' },
+                ]}
+                onPress={() => navigation.navigate('LikedBooks')}
+                activeOpacity={0.6}
+              >
+                <Icon
+                  name={'heart'}
+                  size={24}
+                  color={theme.colors.textSecondary}
+                  iconStyle={'regular'}
+                />
+                <Text
+                  style={[styles.buttonText, { color: 'rgb(231, 131, 132)' }]}
+                >
+                  Liked Books
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.button,
+                  { backgroundColor: 'rgb(214, 234, 250)' },
+                ]}
+                onPress={() => navigation.navigate('Notification')}
+                activeOpacity={0.6}
+              >
+                <Icon
+                  name={'bell'}
+                  size={24}
+                  color={theme.colors.textSecondary}
+                  iconStyle={'regular'}
+                />
+                <Text
+                  style={[styles.buttonText, { color: 'rgb(99, 163, 226)' }]}
+                >
+                  Notifications
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            {/*Options Buttons */}
+            <View style={styles.optionButtonsContainer}>
+              {options.map((btn, idx) => (
+                <TouchableOpacity
+                  style={styles.option}
+                  key={btn.id}
+                  onPress={btn.onPress}
+                >
+                  <Icon
+                    name={btn.Icon}
+                    size={20}
+                    iconStyle={'solid'}
+                    color={
+                      btn.id === 4
+                        ? 'rgba(241, 116, 118, 1)'
+                        : theme.colors.textSecondary
+                    }
+                  />
+                  <Text
+                    style={[
+                      styles.optionText,
+                      btn.id === 4 && { color: 'rgba(246, 106, 109, 1)' },
+                    ]}
+                  >
+                    {btn.text}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </>
+        )}
       </ScrollView>
     </SafeAreaView>
   );

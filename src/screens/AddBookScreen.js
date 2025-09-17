@@ -16,9 +16,10 @@ import InputComp from '../components/InputComp';
 import DropDown from '../components/DropDown';
 import ImageSelector from '../components/ImageSelector';
 import ButtonComp from '../components/ButtonComp';
-import booknest from '../services/api';
 import Toast from 'react-native-toast-message';
 import { useNavigation } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
+import { addBook } from '../redux/bookSlice';
 
 const AddBookScreen = () => {
   const navigation = useNavigation();
@@ -33,7 +34,8 @@ const AddBookScreen = () => {
     year: '',
   });
   const [images, setImages] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const { loading } = useSelector(state => state.book);
+  const dispatch = useDispatch();
 
   const validateForm = form => {
     const errors = {};
@@ -97,50 +99,28 @@ const AddBookScreen = () => {
       });
       return;
     }
+    const formData = new FormData();
 
-    try {
-      setLoading(true);
-      const formData = new FormData();
+    //append fields
+    Object.keys(bookData).forEach(key => {
+      formData.append(key, bookData[key]);
+    });
 
-      //append fields
-      Object.keys(bookData).forEach(key => {
-        formData.append(key, bookData[key]);
+    //append images
+    images.forEach((img, idx) => {
+      formData.append('images', {
+        uri: img.uri,
+        type: img.type || 'image/jpeg',
+        name: img.fileName || `photo_${idx}.jpg`,
       });
+    });
+    console.log('FormData :', formData);
 
-      //append images
-      images.forEach((img, idx) => {
-        formData.append('images', {
-          uri: img.uri,
-          type: img.type || 'image/jpeg',
-          name: img.fileName || `photo_${idx}.jpg`,
-        });
+    dispatch(addBook(formData))
+      .unwrap()
+      .then(() => {
+        navigation.replace('Tab');
       });
-      console.log('FormData :', formData);
-
-      const response = await booknest.post('/books/addbook', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-
-      console.log('Post Book Resp:', response.data);
-      Toast.show({
-        type: 'success',
-        text1: response.data?.message,
-        text1Style: { color: theme.colors.success },
-      });
-      navigation.replace('Tab');
-    } catch (error) {
-      console.error(
-        'Error adding book:',
-        error.response?.data?.message || error.message,
-      );
-      Toast.show({
-        type: 'error',
-        text1: error.response.data?.message,
-        text1Style: { color: theme.colors.error },
-      });
-    } finally {
-      setLoading(false);
-    }
   };
 
   return (
@@ -296,6 +276,7 @@ const AddBookScreen = () => {
               title={loading ? 'Loading...' : 'Post Book'}
               btnStyle={{ marginTop: theme.spacing.lg }}
               onPress={() => handlePostBook({ bookData: form, images: images })}
+              disabled={loading}
             />
           </View>
         </KeyboardAvoidingView>

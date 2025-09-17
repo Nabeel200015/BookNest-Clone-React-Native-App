@@ -13,38 +13,43 @@ import SearchBar from '../components/SearchBar';
 import { useNavigation } from '@react-navigation/native';
 import booknest from '../services/api';
 import SearchBookCard from '../components/SearchBookCard';
+import { useDispatch, useSelector } from 'react-redux';
+import { searchBook } from '../redux/bookSlice';
 
 const SearchScreen = () => {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [results, setResults] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const { searchBooks, searchLoading } = useSelector(state => state.book);
 
-  const handleSearch = async () => {
+  const handleSearch = () => {
     if (!searchQuery.trim()) {
       setResults([]);
       return;
     }
 
-    try {
-      setLoading(true);
-      const response = await booknest.get('/books/searchbook', {
-        params: {
-          title: searchQuery,
-          genre: selectedCategory === 'All' ? '' : selectedCategory,
-        },
-      });
-      console.log('Search Res:', response.data);
+    dispatch(searchBook({ query: searchQuery, category: selectedCategory }));
 
-      setResults(response.data || []);
-    } catch (error) {
-      console.log('API Error', error.response?.data?.error);
-      // setError(error.response?.data?.error || 'Failed to search');
-      setResults([]);
-    } finally {
-      setLoading(false);
-    }
+    // try {
+    //   setLoading(true);
+    //   const response = await booknest.get('/books/searchbook', {
+    //     params: {
+    //       title: searchQuery,
+    //       genre: selectedCategory === 'All' ? '' : selectedCategory,
+    //     },
+    //   });
+    //   console.log('Search Res:', response.data);
+
+    //   setResults(response.data || []);
+    // } catch (error) {
+    //   console.log('API Error', error.response?.data?.error);
+    //   // setError(error.response?.data?.error || 'Failed to search');
+    //   setResults([]);
+    // } finally {
+    //   setLoading(false);
+    // }
   };
 
   // Optional: Debounced search
@@ -88,13 +93,13 @@ const SearchScreen = () => {
           placeholder="Search for books..."
           onSubmit={handleSearch}
         />
-        {results.length === 0 ? (
+        {searchBooks.length === 0 ? (
           <View style={styles.centerContent}>
             <Text style={styles.noResultsText}>No results found</Text>
           </View>
         ) : (
           <FlatList
-            data={results}
+            data={searchBooks}
             keyExtractor={item => item._id}
             renderItem={({ item }) => (
               <SearchBookCard

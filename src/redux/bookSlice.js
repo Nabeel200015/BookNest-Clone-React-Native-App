@@ -132,6 +132,56 @@ export const requestBid = createAsyncThunk(
   },
 );
 
+//search Books
+export const searchBook = createAsyncThunk(
+  'book/searchBook',
+  async ({ query, category }, thunkAPI) => {
+    try {
+      const response = await booknest.get('/books/searchbook', {
+        params: {
+          title: query,
+          genre: category === 'All' ? '' : category,
+        },
+      });
+      console.log('Search Book API:', response.data);
+
+      return response.data;
+    } catch (error) {
+      console.log(
+        'Search Book API Error:',
+        error.response?.data || error.message,
+      );
+      return thunkAPI.rejectWithValue(error.response?.data || error.message);
+    }
+  },
+);
+
+//add book
+export const addBook = createAsyncThunk(
+  'book/addBook',
+  async (formData, thunkAPI) => {
+    try {
+      const response = await booknest.post('/books/addbook', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      thunkAPI.dispatch(getMyBooks());
+
+      Toast.show({
+        position: 'top',
+        type: 'success',
+        text1: '✅ Book Added successfully!',
+        text1Style: { color: theme.colors.success },
+      });
+
+      console.log('Add Book API:', response.data);
+      return response.data;
+    } catch (error) {
+      console.log('Add Book API Error:', error.response?.data || error.message);
+      return thunkAPI.rejectWithValue(error.response?.data || error.message);
+    }
+  },
+);
+
 const booksSlice = createSlice({
   name: 'book',
   initialState: {
@@ -139,6 +189,8 @@ const booksSlice = createSlice({
     myBooks: [],
     selectedBook: {},
     moreBooks: [],
+    searchBooks: [],
+    searchLoading: false,
     currentPage: 1,
     totalPage: 1,
     totalBooks: 0,
@@ -196,9 +248,34 @@ const booksSlice = createSlice({
       .addCase(getSelectedBook.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+
+      //search books
+      .addCase(searchBook.pending, state => {
+        state.searchLoading = true;
+        state.error = null;
+      })
+      .addCase(searchBook.fulfilled, (state, action) => {
+        state.searchLoading = false;
+        state.searchBooks = action.payload;
+      })
+      .addCase(searchBook.rejected, state => {
+        state.searchLoading = false;
+      })
+
+      //add book
+      .addCase(addBook.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(addBook.fulfilled, state => {
+        state.loading = false;
+      })
+      .addCase(addBook.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });
 
-// export const { toggleWishlist } = booksSlice.actions;
 export default booksSlice.reducer;

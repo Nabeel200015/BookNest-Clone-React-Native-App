@@ -42,7 +42,9 @@ const BookDetailScreen = () => {
 
   //fetch selected book
   useEffect(() => {
-    dispatch(getSelectedBook(book._id));
+    if (book) {
+      dispatch(getSelectedBook(book._id));
+    }
   }, [dispatch]);
 
   //toggle wishlist
@@ -170,7 +172,7 @@ const BookDetailScreen = () => {
           </View>
 
           {/*Buttons*/}
-          {book.user._id === user._id ? (
+          {book.user._id === user?._id ? (
             <View style={styles.yourBookContainer}>
               <LinearGradient
                 style={styles.yourBookCard}

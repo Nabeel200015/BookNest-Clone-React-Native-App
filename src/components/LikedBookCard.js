@@ -2,6 +2,7 @@ import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import React from 'react';
 import theme from '../constants/theme';
 import Icon from '@react-native-vector-icons/fontawesome6';
+import { BASE_URL } from '../utils/routes';
 
 const LikedBookCard = ({ book, onPress, onPressLike }) => {
   console.log('liked Book:', book);
@@ -27,7 +28,7 @@ const LikedBookCard = ({ book, onPress, onPressLike }) => {
       <View style={styles.imageContainer}>
         <Image
           source={{
-            uri: `http://192.168.18.40:3000/${book.images[0]}`,
+            uri: `${BASE_URL}/${book.images[0]}`,
           }}
           style={styles.bookImage}
           resizeMode="cover"

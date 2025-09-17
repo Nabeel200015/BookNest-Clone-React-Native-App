@@ -14,6 +14,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { getBooks } from '../redux/bookSlice';
 import Loading from '../components/Loading';
+import Toast from 'react-native-toast-message';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -73,6 +74,7 @@ const HomeScreen = () => {
           />
         </View>
       )}
+      <Toast />
     </SafeAreaView>
   );
 };
