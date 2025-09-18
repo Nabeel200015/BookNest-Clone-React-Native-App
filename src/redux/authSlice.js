@@ -10,6 +10,7 @@ import {
 import Toast from 'react-native-toast-message';
 import theme from '../constants/theme';
 import { fetchUser } from './userSlice';
+import socket from '../services/socket';
 
 // //Login thunk
 // export const loginUser = createAsyncThunk(
@@ -49,6 +50,8 @@ export const loginUser = createAsyncThunk(
       //save token and user to AsyncStorage
       await saveToken(token);
       await saveUser(JSON.stringify(user));
+      socket.emit('join_room', { userId: user._id });
+
       // console.log('Login User:', JSON.stringify(user));
       // console.log('Token:', token);
 

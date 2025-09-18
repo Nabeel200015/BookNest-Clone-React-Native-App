@@ -5,8 +5,7 @@ import theme from '../constants/theme';
 import Icon from '@react-native-vector-icons/fontawesome6';
 
 const SentRequestCard = ({ item }) => {
-  const { books } = useSelector(state => state.book);
-  const book = books.find(p => p._id === item.item.book);
+  const book = item.item.book;
 
   // Function to format the price
   const formatPrice = amount => {

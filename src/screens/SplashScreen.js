@@ -8,6 +8,7 @@ import { useNavigation } from '@react-navigation/native';
 import { getToken, getUser } from '../utils/storage';
 import { useDispatch } from 'react-redux';
 import { fetchUser } from '../redux/userSlice';
+import socket from '../services/socket';
 
 const SplashScreen = () => {
   const navigation = useNavigation();
@@ -17,6 +18,9 @@ const SplashScreen = () => {
     try {
       const storedToken = await getToken();
       const storedUser = await getUser();
+      const user = JSON.parse(storedUser);
+
+      socket.emit('join_room', { userId: user._id });
 
       if (storedToken && storedUser) {
         dispatch(fetchUser());

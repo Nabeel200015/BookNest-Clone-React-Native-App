@@ -12,6 +12,7 @@ import LikedBooks from '../screens/LikedBooksScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
 import MyBooksScreen from '../screens/MyBooksScreen';
 import BookRequestsScreen from '../screens/BookRequestsScreen';
+import MessagesScreen from '../screens/MessagesScreen';
 
 //AuthScreens
 import LoginScreen from '../screens/LoginScreen';
@@ -51,6 +52,7 @@ const AppNavigator = () => {
         <Stack.Screen name="EditProfile" component={EditProfileScreen} />
         <Stack.Screen name="MyBooks" component={MyBooksScreen} />
         <Stack.Screen name="BookRequests" component={BookRequestsScreen} />
+        <Stack.Screen name="Messages" component={MessagesScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

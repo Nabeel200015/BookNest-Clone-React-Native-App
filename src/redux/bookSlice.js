@@ -1,9 +1,8 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import booknest from '../services/api';
-import { getWishlist } from './wishlistSlice';
 import Toast from 'react-native-toast-message';
 import theme from '../constants/theme';
-import { getNotifications } from './notificationSlice';
+import { fetchUser } from './userSlice';
 
 // // fetch books + wishlist + notifications
 // export const getBooks = createAsyncThunk(
@@ -42,11 +41,8 @@ export const getBooks = createAsyncThunk(
       const response = await booknest.get(`/books/getbooks?${query}`);
       console.log('Get Books API:', response.data);
 
-      //get wishlist
-      thunkAPI.dispatch(getWishlist());
-
-      //get notifications
-      thunkAPI.dispatch(getNotifications());
+      //get User
+      thunkAPI.dispatch(fetchUser());
 
       return { ...response.data, append };
     } catch (error) {
@@ -105,6 +101,7 @@ export const requestBid = createAsyncThunk(
       });
       console.log('Request Bid API:', response.data);
 
+      thunkAPI.dispatch(getBookRequests());
       Toast.show({
         position: 'top',
         type: 'success',
@@ -127,6 +124,24 @@ export const requestBid = createAsyncThunk(
         text1Style: { color: theme.colors.error },
         text2: error.response?.data?.message || error.message,
       });
+      return thunkAPI.rejectWithValue(error.response?.data || error.message);
+    }
+  },
+);
+
+//get book requests
+export const getBookRequests = createAsyncThunk(
+  'book/getBookRequests',
+  async (_, thunkAPI) => {
+    try {
+      const response = await booknest.get('/books/getrequests');
+      console.log('Get Book Requests API:', response.data);
+      return response.data;
+    } catch (error) {
+      console.log(
+        'Get Book Requests API Error:',
+        error.response?.data || error.message,
+      );
       return thunkAPI.rejectWithValue(error.response?.data || error.message);
     }
   },
@@ -190,6 +205,8 @@ const booksSlice = createSlice({
     selectedBook: {},
     moreBooks: [],
     searchBooks: [],
+    receivedRequests: [],
+    sentRequests: [],
     searchLoading: false,
     currentPage: 1,
     totalPage: 1,
@@ -272,6 +289,21 @@ const booksSlice = createSlice({
         state.loading = false;
       })
       .addCase(addBook.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      //get book requests
+      .addCase(getBookRequests.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getBookRequests.fulfilled, (state, action) => {
+        state.loading = false;
+        state.receivedRequests = action.payload.receivedRequests;
+        state.sentRequests = action.payload.sentRequests;
+      })
+      .addCase(getBookRequests.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

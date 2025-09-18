@@ -15,21 +15,24 @@ import Icon from '@react-native-vector-icons/fontawesome6';
 import InputComp from '../components/InputComp';
 import { useNavigation } from '@react-navigation/native';
 import * as imagePicker from 'react-native-image-picker';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Toast from 'react-native-toast-message';
-import booknest from '../services/api';
+
+import { updateProfile, changePassword } from '../redux/userSlice';
 
 const EditProfileScreen = () => {
   const navigation = useNavigation();
-  const [changePassword, setChangePassword] = useState(false);
-  const toggleChangePass = () => setChangePassword(!changePassword);
+  const dispatch = useDispatch();
+  const { user, loading } = useSelector(state => state.user);
+
+  const [changePasswordVisible, setChangePassword] = useState(false);
+  const toggleChangePass = () => setChangePassword(!changePasswordVisible);
+
   const [profileImage, setProfileImage] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const { user } = useSelector(state => state.auth);
   const [form, setForm] = useState({
-    firstname: user.firstname || '',
-    lastname: user.lastname || '',
-    phoneno: user.phoneno || '',
+    firstname: user?.firstname || '',
+    lastname: user?.lastname || '',
+    phoneno: user?.phoneno || '',
   });
   const [passwords, setPasswords] = useState({
     current: '',
@@ -58,54 +61,28 @@ const EditProfileScreen = () => {
     });
   };
 
-  const handleUpdate = async (form, image) => {
-    try {
-      setLoading(true);
-      const formData = new FormData();
+  const handleUpdate = (form, image) => {
+    const formData = new FormData();
 
-      //Append profileImage (if selected)
-      if (image) {
-        formData.append('profileimage', {
-          uri: image.uri,
-          type: image.type || 'image/jpeg',
-          name: image.filename || 'profile.jpg',
-        });
-      }
-
-      //Append text fields
-      Object.keys(form).forEach(key => {
-        if (form[key]) {
-          formData.append(key, form[key]);
-        }
+    //Append profileImage (if selected)
+    if (image) {
+      formData.append('profileimage', {
+        uri: image.uri,
+        type: image.type || 'image/jpeg',
+        name: image.filename || 'profile.jpg',
       });
-
-      console.log('form :', formData);
-
-      const response = await booknest.put('/users/update-profile', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-
-      console.log('Profile Update:', response.data);
-      return Toast.show({
-        position: 'top',
-        type: 'success',
-        text1: '✅ Profile updated successfully!',
-        text1Style: { color: theme.colors.success },
-      });
-    } catch (error) {
-      console.log('Profile Update Error:', error.response?.data?.message);
-      return Toast.show({
-        position: 'top',
-        type: 'error',
-        text1: '❌ Failed to update profile',
-        text1Style: { color: theme.colors.error },
-        text2: error.response?.data?.message,
-      });
-    } finally {
-      setLoading(false);
     }
+
+    //Append text fields
+    Object.keys(form).forEach(key => {
+      if (form[key]) {
+        formData.append(key, form[key]);
+      }
+    });
+
+    console.log('form :', formData);
+
+    dispatch(updateProfile(formData));
   };
 
   const handleChangePassword = async (currentPass, newPass, confPass) => {
@@ -119,32 +96,9 @@ const EditProfileScreen = () => {
       });
     }
 
-    try {
-      setLoading(true);
-      const response = await booknest.post('/users/change-password', {
-        oldPassword: currentPass,
-        newPassword: newPass,
-      });
-      console.log('Password Change:', response.data);
-      return Toast.show({
-        position: 'top',
-        type: 'success',
-        text1: '✅ Password changed successfully!',
-        text1Style: { color: theme.colors.success },
-      });
-    } catch (error) {
-      console.log('Password Change Error:', error.response?.data?.message);
-      return Toast.show({
-        position: 'top',
-        type: 'error',
-        text1: '❌ Failed to change password',
-        text1Style: { color: theme.colors.error },
-        text2: error.response?.data?.message,
-      });
-    } finally {
-      setLoading(false);
-    }
+    dispatch(changePassword({ currentPass: currentPass, newPass: newPass }));
   };
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.container}>
@@ -212,7 +166,7 @@ const EditProfileScreen = () => {
                 color={theme.colors.textTertiary}
                 iconStyle="solid"
               />
-              <Text style={styles.emailText}>{user.email}</Text>
+              <Text style={styles.emailText}>{user?.email}</Text>
             </View>
             <InputComp
               leftIcon={'phone'}
@@ -251,7 +205,7 @@ const EditProfileScreen = () => {
             </Text>
           </View>
 
-          {!changePassword ? (
+          {!changePasswordVisible ? (
             <TouchableOpacity
               style={styles.passwordButton}
               activeOpacity={0.5}

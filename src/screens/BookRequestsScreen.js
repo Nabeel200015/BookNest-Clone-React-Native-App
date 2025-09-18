@@ -18,9 +18,8 @@ import SentRequestCard from '../components/SentRequestCard';
 const BookRequestsScreen = () => {
   const navigation = useNavigation();
   const [toggle, setToggle] = useState('Recieved Requests');
-  const sentRequests = useSelector(state => state.auth).user.sentrequests;
-
-  console.log('books :', sentRequests);
+  // const sentRequests = useSelector(state => state.auth).user.sentrequests;
+  const { sentRequests, recievedRequests } = useSelector(state => state.book);
 
   return (
     <SafeAreaView style={styles.container}>
