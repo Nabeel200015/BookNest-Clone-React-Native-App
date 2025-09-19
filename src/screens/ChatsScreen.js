@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import theme from '../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from '../components/Header';
@@ -22,37 +22,50 @@ const ChatsScreen = () => {
   const navigation = useNavigation();
   const [chatRooms, setchatRooms] = useState([]);
   const [searchChat, setSearchChat] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
 
-  const getChatRoom = userId => {
-    socket.emit('get_chat_rooms', userId);
-    socket.on('chat_rooms', chats => {
-      setchatRooms(chats);
-      console.log('Chat Rooms:', chats);
+  // Memoized search results for better performance
+  const searchResultsMemo = useMemo(() => {
+    if (!searchChat.trim()) {
+      return chatRooms;
+    }
+
+    return chatRooms.filter(chat => {
+      try {
+        const fullName = `${chat.receiver?.firstname || ''} ${
+          chat.receiver?.lastname || ''
+        }`.toLowerCase();
+        return fullName.includes(searchChat.toLowerCase().trim());
+      } catch (err) {
+        console.warn('Error filtering chat:', err);
+        return false;
+      }
     });
-  };
+  }, [chatRooms, searchChat]);
 
   //get Chats
   useEffect(() => {
-    getChatRoom(user?._id);
-  }, []);
+    const handleChatRooms = chats => {
+      const sortChats = chats.sort((a, b) => {
+        const timeA = a.lastMessage?.createdAt
+          ? new Date(a.lastMessage.createdAt).getTime()
+          : 0;
+        const timeB = b.lastMessage?.createdAt
+          ? new Date(b.lastMessage.createdAt).getTime()
+          : 0;
+        return timeB - timeA;
+      });
+      setchatRooms(sortChats);
+    };
 
-  //search Chats
-  useEffect(() => {
-    if (searchChat === '') {
-      return;
+    if (user?._id) {
+      socket.on('chat_rooms', handleChatRooms);
+      socket.emit('get_chat_rooms', user._id);
     }
-    const searchChatRooms = chatRooms.filter(chat => {
-      return `${chat.receiver.firstname.toLowerCase()}${chat.receiver.lastname.toLowerCase()} `.includes(
-        searchChat.toLowerCase().trim(''),
-      );
-    });
 
-    setSearchResults(searchChatRooms);
-
-    console.log('Search:', searchChat);
-    console.log('searchResults:', searchChatRooms);
-  }, [searchChat]);
+    return () => {
+      socket.off('chat_rooms', handleChatRooms);
+    };
+  }, [user?._id]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -66,7 +79,7 @@ const ChatsScreen = () => {
         <ChatSearch value={searchChat} onChangeText={setSearchChat} />
 
         <ScrollView style={styles.chatRoomsView} scrollEnabled>
-          {chatRooms.length === 0 ? (
+          {searchResultsMemo.length === 0 ? (
             <View
               style={{
                 flex: 1,
@@ -79,11 +92,11 @@ const ChatsScreen = () => {
               </Text>
             </View>
           ) : (
-            (searchChat ? searchResults : chatRooms).map((chat, index) => (
+            searchResultsMemo.map((chat, index) => (
               <ChatCard
                 key={index}
                 chat={chat}
-                onPress={() => navigation.navigate('Messages')}
+                onPress={() => navigation.navigate('Messages', { room: chat })}
               />
             ))
           )}

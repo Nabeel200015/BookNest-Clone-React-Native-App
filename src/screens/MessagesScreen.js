@@ -1,4 +1,6 @@
 import {
+  Animated,
+  FlatList,
   Image,
   KeyboardAvoidingView,
   ScrollView,
@@ -8,14 +10,65 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import theme from '../constants/theme';
 import Icon from '@react-native-vector-icons/fontawesome6';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import socket from '../services/socket';
+import { BASE_URL } from '../utils/routes';
+import MessageCard from '../components/MessageCard';
+import { useSelector } from 'react-redux';
 
 const MessagesScreen = () => {
+  const flatListRef = useRef();
   const navigation = useNavigation();
+  const route = useRoute().params;
+  const room = route?.room;
+  const { user } = useSelector(state => state.user);
+
+  const [text, setText] = useState('');
+
+  const [chatRoom, setChatRoom] = useState(room || null);
+  const [messages, setMessages] = useState([]);
+
+  // console.log('Chat Room :', chatRoom);
+  // console.log('user :', user);
+
+  const handleSendMessage = () => {
+    if (!text) return console.log('Please enter a message');
+    socket.emit('send_message', {
+      senderId: user._id,
+      receiverId: chatRoom?.receiver?._id,
+      message: text,
+    });
+
+    setText('');
+  };
+
+  //check room if exists get chat room messages
+  useEffect(() => {
+    const handleChatMessages = msgs => {
+      console.log('Messages :', msgs);
+
+      setMessages(msgs);
+    };
+
+    const handleRecievedMessage = msg => {
+      console.log('Received Message :', msg);
+      setMessages(prev => [...prev, msg]);
+    };
+
+    socket.emit('get_chat_room_messages', chatRoom._id);
+    socket.on('chat_room_messages', handleChatMessages);
+    socket.on('received_message', handleRecievedMessage);
+
+    return () => {
+      socket.off('chat_room_messages', handleChatMessages);
+      socket.off('received_message', handleRecievedMessage);
+    };
+  }, []);
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
@@ -34,20 +87,31 @@ const MessagesScreen = () => {
         </TouchableOpacity>
 
         <Image
-          source={require('../assets/images/profile.png')}
+          source={{ uri: `${BASE_URL}/${chatRoom?.receiver?.profileimage}` }}
           style={styles.Image}
           resizeMode="cover"
         />
 
         <View style={styles.headerContent}>
-          <Text style={styles.title}>Name</Text>
+          <Text style={styles.title}>
+            {`${chatRoom?.receiver?.firstname} ${chatRoom?.receiver?.lastname}`}
+          </Text>
           <Text style={styles.staus}>Online</Text>
         </View>
       </View>
 
       {/* Messages */}
       <KeyboardAvoidingView style={styles.container}>
-        <View style={styles.messagesView}></View>
+        <FlatList
+          ref={flatListRef}
+          data={messages}
+          keyExtractor={(item, idx) => idx.toString()}
+          renderItem={({ item }) => <MessageCard item={item} />}
+          onContentSizeChange={() =>
+            flatListRef.current.scrollToEnd({ animated: true })
+          }
+          contentContainerStyle={styles.messagesList}
+        />
       </KeyboardAvoidingView>
 
       {/* message input */}
@@ -57,9 +121,15 @@ const MessagesScreen = () => {
           placeholder="Type a message..."
           placeholderTextColor={theme.colors.divider}
           multiline
+          value={text}
+          onChangeText={setText}
         />
 
-        <TouchableOpacity activeOpacity={0.8} style={styles.sendBtn}>
+        <TouchableOpacity
+          activeOpacity={0.5}
+          style={styles.sendBtn}
+          onPress={handleSendMessage}
+        >
           <Icon
             name="paper-plane"
             size={20}
@@ -114,8 +184,9 @@ const styles = StyleSheet.create({
     ...theme.Typography.body,
     color: theme.colors.textInverse,
   },
-  messagesView: {
-    flex: 1,
+  messagesList: {
+    // flex: 1,
+    padding: theme.spacing.sm,
   },
   inputView: {
     padding: theme.spacing.sm,
