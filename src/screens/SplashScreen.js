@@ -30,7 +30,7 @@ const SplashScreen = () => {
       }
     } catch (error) {
       console.log('Error getting async storage:', error);
-      // navigation.replace('Login');
+      navigation.replace('Login');
     }
   };
 

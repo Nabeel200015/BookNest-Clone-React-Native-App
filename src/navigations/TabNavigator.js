@@ -3,7 +3,6 @@ import React from 'react';
 import CustomTabBar from '../components/CustomTabBar';
 import HomeScreen from '../screens/HomeScreen';
 import SearchScreen from '../screens/SearchScreen';
-import Chats from '../screens/ChatsScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import { useNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -22,8 +21,6 @@ function AddBookStack() {
   );
 }
 const TabNavigator = () => {
-  const navigation = useNavigation();
-
   return (
     <Tab.Navigator
       tabBar={props => <CustomTabBar {...props} />}

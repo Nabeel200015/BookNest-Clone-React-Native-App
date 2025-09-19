@@ -25,6 +25,7 @@ const MessagesScreen = () => {
   const navigation = useNavigation();
   const route = useRoute().params;
   const room = route?.room;
+  const sellerId = route?.sellerId;
   const { user } = useSelector(state => state.user);
 
   const [text, setText] = useState('');
@@ -45,8 +46,20 @@ const MessagesScreen = () => {
 
     setText('');
   };
+  useEffect(() => {
+    const handleChatRooms = chats => {
+      const sellerChatRoom = chats.find(c => c.receiver?._id === sellerId);
+      setChatRoom(sellerChatRoom);
+      console.log('Room set done :', sellerChatRoom);
+    };
 
-  //check room if exists get chat room messages
+    if (!chatRoom) {
+      socket.on('chat_rooms', handleChatRooms);
+    }
+
+    return () => socket.off('chat_rooms', handleChatRooms);
+  }, []);
+
   useEffect(() => {
     const handleChatMessages = msgs => {
       console.log('Messages :', msgs);
@@ -59,15 +72,19 @@ const MessagesScreen = () => {
       setMessages(prev => [...prev, msg]);
     };
 
-    socket.emit('get_chat_room_messages', chatRoom._id);
-    socket.on('chat_room_messages', handleChatMessages);
-    socket.on('received_message', handleRecievedMessage);
+    if (chatRoom) {
+      socket.emit('get_chat_room_messages', chatRoom._id);
+      socket.on('chat_room_messages', handleChatMessages);
+      socket.on('received_message', handleRecievedMessage);
+    } else {
+      console.log('get a room first');
+    }
 
     return () => {
       socket.off('chat_room_messages', handleChatMessages);
       socket.off('received_message', handleRecievedMessage);
     };
-  }, []);
+  }, [chatRoom]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -76,7 +93,7 @@ const MessagesScreen = () => {
         <TouchableOpacity
           activeOpacity={0.8}
           style={styles.back}
-          onPress={() => navigation.goBack()}
+          onPress={() => navigation.replace('Tab')}
         >
           <Icon
             name="arrow-left"
@@ -94,7 +111,8 @@ const MessagesScreen = () => {
 
         <View style={styles.headerContent}>
           <Text style={styles.title}>
-            {`${chatRoom?.receiver?.firstname} ${chatRoom?.receiver?.lastname}`}
+            {chatRoom &&
+              `${chatRoom?.receiver?.firstname} ${chatRoom?.receiver?.lastname}`}
           </Text>
           <Text style={styles.staus}>Online</Text>
         </View>

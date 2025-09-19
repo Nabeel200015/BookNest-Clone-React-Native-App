@@ -5,6 +5,7 @@ import theme from '../constants/theme';
 import { getWishlist } from './wishlistSlice';
 import { getNotifications } from './notificationSlice';
 import { getBookRequests, getMyBooks } from './bookSlice';
+import { logoutUser } from './authSlice';
 
 //get user
 export const fetchUser = createAsyncThunk(
@@ -104,6 +105,7 @@ export const changePassword = createAsyncThunk(
     }
   },
 );
+
 const userSlice = createSlice({
   name: 'user',
   initialState: {
@@ -111,7 +113,15 @@ const userSlice = createSlice({
     loading: false,
     error: null,
   },
-  reducers: {},
+  reducers: {
+    resetUser: state => {
+      state.user = null;
+      state.loading = false;
+      state.error = null;
+
+      console.log('Reset User', state.user);
+    },
+  },
   extraReducers: builder => {
     builder
       //getUser
@@ -155,5 +165,7 @@ const userSlice = createSlice({
       });
   },
 });
+
+export const { resetUser } = userSlice.actions;
 
 export default userSlice.reducer;

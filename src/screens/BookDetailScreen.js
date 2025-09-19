@@ -24,6 +24,7 @@ import Toast from 'react-native-toast-message';
 import ContactSellerModal from '../components/ContactSellerModal';
 import { BASE_URL } from '../utils/routes';
 import { addWishlist, toggleWishlist } from '../redux/wishlistSlice';
+import socket from '../services/socket';
 
 const BookDetailScreen = () => {
   const navigation = useNavigation();
@@ -62,6 +63,18 @@ const BookDetailScreen = () => {
 
   const handleMakeOffer = () => {
     dispatch(requestBid({ bookId: book._id, amount: offerPrice }));
+  };
+
+  const handleChatStart = sellerId => {
+    // console.log('Seller ID:', sellerId);
+    // console.log('User ID:', user._id);
+
+    socket.emit('create_chat_room', {
+      senderId: user._id,
+      receiverId: sellerId,
+    });
+
+    navigation.navigate('Messages', { sellerId: sellerId });
   };
 
   return (
@@ -217,7 +230,11 @@ const BookDetailScreen = () => {
                 </LinearGradient>
               </TouchableOpacity>
 
-              <TouchableOpacity style={[styles.button, styles.chatButton]}>
+              <TouchableOpacity
+                style={[styles.button, styles.chatButton]}
+                activeOpacity={0.6}
+                onPress={() => handleChatStart(book.user._id)}
+              >
                 <Icon
                   name={'comments'}
                   size={24}

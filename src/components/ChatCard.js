@@ -39,11 +39,11 @@ const ChatCard = ({ chat, onPress }) => {
             style={styles.name}
           >{`${chat.receiver?.firstname} ${chat.receiver?.lastname}`}</Text>
           <Text style={styles.msgTime}>
-            {getTimeAgo(chat.lastMessage.createdAt)}
+            {chat?.lastMessage && getTimeAgo(chat?.lastMessage?.createdAt)}
           </Text>
         </View>
         <Text style={styles.msg} numberOfLines={1}>
-          {chat.lastMessage.message}
+          {chat?.lastMessage ? chat?.lastMessage?.message : 'No messages yet'}
         </Text>
       </View>
     </TouchableOpacity>

@@ -9,7 +9,7 @@ import {
 } from '../utils/storage';
 import Toast from 'react-native-toast-message';
 import theme from '../constants/theme';
-import { fetchUser } from './userSlice';
+import { fetchUser, resetUser } from './userSlice';
 import socket from '../services/socket';
 
 // //Login thunk
@@ -226,11 +226,15 @@ export const resetPassword = createAsyncThunk(
 );
 
 // LogoutThunk
-export const logoutUser = createAsyncThunk('auth/logout', async () => {
-  await removeToken();
-  await removeUser();
-  return null;
-});
+export const logoutUser = createAsyncThunk(
+  'auth/logout',
+  async (_, thunkAPI) => {
+    await removeToken();
+    await removeUser();
+    thunkAPI.dispatch(resetUser());
+    return null;
+  },
+);
 
 const initialState = {
   user: null,
