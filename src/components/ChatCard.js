@@ -29,7 +29,7 @@ const ChatCard = ({ chat, onPress }) => {
     <TouchableOpacity style={styles.chat} activeOpacity={0.8} onPress={onPress}>
       <Image
         source={{
-          uri: `${BASE_URL}/${chat.receiver?.profileimage}`,
+          uri: `${BASE_URL}/${chat.otherUser?.profileimage}`,
         }}
         style={styles.chatImage}
       />
@@ -37,7 +37,7 @@ const ChatCard = ({ chat, onPress }) => {
         <View style={styles.nameView}>
           <Text
             style={styles.name}
-          >{`${chat.receiver?.firstname} ${chat.receiver?.lastname}`}</Text>
+          >{`${chat.otherUser?.firstname} ${chat.otherUser?.lastname}`}</Text>
           <Text style={styles.msgTime}>
             {chat?.lastMessage && getTimeAgo(chat?.lastMessage?.createdAt)}
           </Text>

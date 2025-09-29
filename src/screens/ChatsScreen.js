@@ -42,18 +42,35 @@ const ChatsScreen = () => {
     });
   }, [chatRooms, searchChat]);
 
+  // Sort chat rooms by last message time (newest first)
+  const sortChatRooms = rooms => {
+    return rooms.sort((a, b) => {
+      const timeA = a.lastMessage?.createdAt
+        ? new Date(a.lastMessage.createdAt).getTime()
+        : 0;
+      const timeB = b.lastMessage?.createdAt
+        ? new Date(b.lastMessage.createdAt).getTime()
+        : 0;
+      return timeB - timeA;
+    });
+  };
+
   //get Chats
   useEffect(() => {
     const handleChatRooms = chats => {
-      const sortChats = chats.sort((a, b) => {
-        const timeA = a.lastMessage?.createdAt
-          ? new Date(a.lastMessage.createdAt).getTime()
-          : 0;
-        const timeB = b.lastMessage?.createdAt
-          ? new Date(b.lastMessage.createdAt).getTime()
-          : 0;
-        return timeB - timeA;
+      console.log('Chat Rooms:', chats);
+      const filtered = chats.map(room => {
+        const otherUser =
+          room.receiver._id === user._id ? room.sender : room.receiver;
+        return {
+          lastMessage: room.lastMessage,
+          otherUser: otherUser,
+          _id: room._id,
+        };
       });
+      console.log('Filtered Chats:', filtered);
+
+      const sortChats = sortChatRooms(filtered);
       setchatRooms(sortChats);
     };
 
