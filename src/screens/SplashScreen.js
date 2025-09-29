@@ -23,13 +23,12 @@ const SplashScreen = () => {
       socket.emit('join_room', { userId: user._id });
 
       if (storedToken && storedUser) {
-        dispatch(fetchUser());
         navigation.replace('Tab');
       } else {
         navigation.replace('Login');
       }
     } catch (error) {
-      console.log('Error getting async storage:', error);
+      console.log('Error getting async storage:', error.message);
       navigation.replace('Login');
     }
   };
